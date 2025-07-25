@@ -2,6 +2,7 @@ import { S3Client, serve } from "bun";
 import { join, normalize } from "node:path";
 import { randomBytes } from "node:crypto";
 import mime from "mime";
+import type { File } from "node:buffer";
 
 const {
 	S3_REGION,
@@ -68,6 +69,19 @@ function generate_random_domain(): string {
 	return `${adjective}-${noun}-${suffix}`;
 }
 
+// Generator function to process files in batches of N
+async function* processBatch<T, R>(
+	items: T[],
+	batchSize: number,
+	processor: (item: T) => Promise<R>
+): AsyncGenerator<R[], void, unknown> {
+	for (let i = 0; i < items.length; i += batchSize) {
+		const batch = items.slice(i, i + batchSize);
+		const results = await Promise.all(batch.map(processor));
+		yield results;
+	}
+}
+
 const http = serve({
 	routes: {
 		"/publish": {
@@ -96,11 +110,11 @@ const http = serve({
 				}
 
 				try {
-					for (const file of file_entries) {
-						if (typeof file === "string") {
-							continue;
-						}
-
+					// Filter out string entries and validate files
+					const files = file_entries.filter((file) => typeof file !== "string");
+					
+					// Process files in batches of 10
+					const processFile = async (file: File) => {
 						// Check file size (5MB limit)
 						if (file.size > 5 * 1024 * 1024) {
 							throw new Error(
@@ -122,12 +136,18 @@ const http = serve({
 						const buffer = new Uint8Array(array_buffer);
 
 						await client.file(s3_path).write(buffer);
+					};
+
+					// Process files in batches of 25 concurrently
+					for await (const batch of processBatch(files, 25, processFile)) {
+						console.log(`Processed batch of ${batch.length} files from ${files.length}`);
 					}
+
 					return Response.json(
 						{
 							domain: `${domain}.${ORIGIN}`,
 							url: `https://${domain}.${ORIGIN}`,
-							total_files: file_entries.length,
+							total_files: files.length,
 						},
 						{ status: 201 },
 					);
@@ -164,7 +184,6 @@ const http = serve({
 			normalized_hostname !== ORIGIN &&
 			normalized_hostname.endsWith(`.${ORIGIN}`);
 
-		console.log({ normalized_hostname, is_subdomain, ORIGIN });
 		if (is_subdomain) {
 			// Prevent path traversal and normalize path
 			const safe_path = normalize(pathname);

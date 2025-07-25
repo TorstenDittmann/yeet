@@ -1,7 +1,7 @@
 import { S3Client, serve } from "bun";
 import { join, normalize } from "node:path";
 import { randomBytes } from "node:crypto";
-import { lookup } from "mime";
+import mime from "mime";
 
 const {
 	S3_REGION,
@@ -182,7 +182,7 @@ const http = serve({
 			if (await file.exists()) {
 				return new Response(file.stream(), {
 					headers: {
-						"Content-Type": lookup(file_path),
+						"Content-Type": mime.getType(file_path)!,
 					},
 				});
 			}

@@ -12,7 +12,7 @@
       },
     },
     "packages/cli": {
-      "name": "@yeet/cli",
+      "name": "@dittmann/yeet",
       "version": "1.0.0",
       "bin": {
         "yeet": "./dist/index.js",
@@ -41,13 +41,13 @@
     "typescript": "^5",
   },
   "packages": {
+    "@dittmann/yeet": ["@dittmann/yeet@workspace:packages/cli"],
+
     "@types/bun": ["@types/bun@1.2.19", "", { "dependencies": { "bun-types": "1.2.19" } }, "sha512-d9ZCmrH3CJ2uYKXQIUuZ/pUnTqIvLDS0SK7pFmbx8ma+ziH/FRMoAq5bYpRG7y+w1gl+HgyNZbtqgMq4W4e2Lg=="],
 
     "@types/node": ["@types/node@24.1.0", "", { "dependencies": { "undici-types": "~7.8.0" } }, "sha512-ut5FthK5moxFKH2T1CUOC6ctR67rQRvvHdFLCD2Ql6KXmMuCrjsSsRI9UsLCm9M18BMwClv4pn327UvB7eeO1w=="],
 
     "@types/react": ["@types/react@19.1.8", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-AwAfQ2Wa5bCx9WP8nZL2uMZWod7J7/JSplxbTmBQ5ms6QpqNYm672H0Vu9ZVKVngQ+ii4R/byguVEUZQyeg44g=="],
-
-    "@yeet/cli": ["@yeet/cli@workspace:packages/cli"],
 
     "@yeet/server": ["@yeet/server@workspace:packages/server"],
 

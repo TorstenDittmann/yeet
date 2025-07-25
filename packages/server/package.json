@@ -13,8 +13,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/bun": "catalog:",
-    "typescript": "catalog:"
+    "@types/bun": "latest",
+    "typescript": "^5"
   },
   "keywords": [
     "static-hosting",

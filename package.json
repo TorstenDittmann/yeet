@@ -1,20 +1,14 @@
 {
 	"name": "yeet",
 	"private": true,
-	"workspaces": {
-		"packages": [
-			"packages/*"
-		],
-		"catalog": {
-			"@types/bun": "latest",
-			"typescript": "^5"
-		}
-	},
+	"workspaces": [
+		"packages/*"
+	],
 	"devDependencies": {
-		"@types/bun": "catalog:",
-		"typescript": "catalog:"
+		"@types/bun": "latest",
+		"typescript": "^5"
 	},
 	"peerDependencies": {
-		"typescript": "catalog:"
+		"typescript": "^5"
 	}
 }

@@ -98,7 +98,8 @@ const http = serve({
 				try {
 					// Filter out string entries and validate files
 					const files = file_entries.filter(
-						(file): file is File => typeof file !== "string",
+						(file): file is File =>
+							typeof file !== "string" && !!file.name,
 					);
 
 					// Process all files concurrently

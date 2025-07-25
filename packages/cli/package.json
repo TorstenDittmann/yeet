@@ -1,6 +1,6 @@
 {
 	"name": "@dittmann/yeet",
-	"version": "1.0.0",
+	"version": "1.0.3",
 	"description": "Yeet CLI for managing static site deployments",
 	"main": "index.ts",
 	"type": "module",

@@ -1,6 +1,7 @@
 import { S3Client, serve } from "bun";
 import { join, normalize } from "node:path";
 import { randomBytes } from "node:crypto";
+import { lookup } from "mime";
 
 const {
 	S3_REGION,
@@ -179,20 +180,32 @@ const http = serve({
 			// Try exact file first
 			const file = client.file(file_path);
 			if (await file.exists()) {
-				return new Response(file.stream());
+				return new Response(file.stream(), {
+					headers: {
+						"Content-Type": lookup(file_path),
+					},
+				});
 			}
 
 			// For extensionless paths, try .html (for clean URLs)
 			if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
 				const html_file = client.file(file_path + ".html");
 				if (await html_file.exists()) {
-					return new Response(html_file.stream());
+					return new Response(html_file.stream(), {
+						headers: {
+							"Content-Type": "text/html",
+						},
+					});
 				}
 
 				// Also try as directory with index.html
 				const dir_index = client.file(join(file_path, "index.html"));
 				if (await dir_index.exists()) {
-					return new Response(dir_index.stream());
+					return new Response(dir_index.stream(), {
+						headers: {
+							"Content-Type": "text/html",
+						},
+					});
 				}
 			}
 
@@ -201,6 +214,9 @@ const http = serve({
 			if (await fallback_file.exists()) {
 				return new Response(fallback_file.stream(), {
 					status: 404,
+					headers: {
+						"Content-Type": "text/html",
+					},
 				});
 			}
 

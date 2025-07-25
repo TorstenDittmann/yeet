@@ -69,18 +69,7 @@ function generate_random_domain(): string {
 	return `${adjective}-${noun}-${suffix}`;
 }
 
-// Generator function to process files in batches of N
-async function* processBatch<T, R>(
-	items: T[],
-	batchSize: number,
-	processor: (item: T) => Promise<R>
-): AsyncGenerator<R[], void, unknown> {
-	for (let i = 0; i < items.length; i += batchSize) {
-		const batch = items.slice(i, i + batchSize);
-		const results = await Promise.all(batch.map(processor));
-		yield results;
-	}
-}
+
 
 const http = serve({
 	routes: {
@@ -111,10 +100,10 @@ const http = serve({
 
 				try {
 					// Filter out string entries and validate files
-					const files = file_entries.filter((file) => typeof file !== "string");
+					const files = file_entries.filter((file): file is File => typeof file !== "string");
 					
-					// Process files in batches of 10
-					const processFile = async (file: File) => {
+					// Process all files concurrently
+					await Promise.all(files.map(async (file) => {
 						// Check file size (5MB limit)
 						if (file.size > 5 * 1024 * 1024) {
 							throw new Error(
@@ -136,12 +125,7 @@ const http = serve({
 						const buffer = new Uint8Array(array_buffer);
 
 						await client.file(s3_path).write(buffer);
-					};
-
-					// Process files in batches of 25 concurrently
-					for await (const batch of processBatch(files, 25, processFile)) {
-						console.log(`Processed batch of ${batch.length} files from ${files.length}`);
-					}
+					}));
 
 					return Response.json(
 						{

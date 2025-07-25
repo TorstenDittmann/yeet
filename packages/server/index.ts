@@ -21,6 +21,11 @@ const client = new S3Client({
 	bucket: S3_BUCKET,
 });
 
+const cache_headers = {
+	"Cache-Control": "public, max-age=31536000",
+	Expires: new Date(Date.now() + 31536000000).toUTCString(),
+};
+
 // Generate a random domain name
 function generate_random_domain(): string {
 	const adjectives = [
@@ -191,6 +196,7 @@ const http = serve({
 						return new Response(file.stream(), {
 							headers: {
 								"Content-Type": mime.getType(file_path)!,
+								...cache_headers,
 							},
 						});
 					}
@@ -202,6 +208,7 @@ const http = serve({
 							return new Response(html_file.stream(), {
 								headers: {
 									"Content-Type": "text/html",
+									...cache_headers,
 								},
 							});
 						}
@@ -214,6 +221,7 @@ const http = serve({
 							return new Response(dir_index.stream(), {
 								headers: {
 									"Content-Type": "text/html",
+									...cache_headers,
 								},
 							});
 						}
@@ -228,6 +236,7 @@ const http = serve({
 							status: 404,
 							headers: {
 								"Content-Type": "text/html",
+								...cache_headers,
 							},
 						});
 					}
@@ -236,7 +245,7 @@ const http = serve({
 				}
 
 				// Handle root domain - serve a simple landing page
-				return new Response("Welcome to Yeet - Static Site Hosting", {
+				return new Response(Bun.file("./index.html"), {
 					status: 200,
 				});
 			},

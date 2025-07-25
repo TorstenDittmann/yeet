@@ -124,8 +124,8 @@ const http = serve({
 					}
 					return Response.json(
 						{
-							domain: `${domain}.${url.host}`,
-							url: `https://${domain}.${url.host}`,
+							domain: `${domain}.${ORIGIN}`,
+							url: `https://${domain}.${ORIGIN}`,
 							total_files: file_entries.length,
 						},
 						{ status: 201 },

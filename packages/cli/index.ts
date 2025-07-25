@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 
-const DEFAULT_SERVER_URL = 'https://yeet.page';
+const DEFAULT_SERVER_URL = 'https://yeet.up.railway.app';
 
 function getServerUrl(): string {
   return process.env.YEET_SERVER_URL || process.env.SERVER_URL || DEFAULT_SERVER_URL;

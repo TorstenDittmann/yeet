@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | Yeet Test Site</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/animations.css">
+</head>
+<body>
+    <div class="container fade-in">
+        <nav class="navbar">
+            <a href="../index.html" class="nav-logo">🚀 Yeet</a>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html" class="active">Contact</a></li>
+                <li><a href="features.html">Features</a></li>
+            </ul>
+        </nav>
+
+        <div class="hero">
+            <span class="hero-emoji">📬</span>
+            <h1>Get in Touch</h1>
+            <p>We'd love to hear from you. Send us a message!</p>
+        </div>
+
+        <div class="grid">
+            <div class="card slide-in delay-1">
+                <div class="card-icon">📧</div>
+                <h3>Email Us</h3>
+                <p>Drop us a line at:</p>
+                <p><strong>hello@yeet.dev</strong></p>
+            </div>
+            
+            <div class="card slide-in delay-2">
+                <div class="card-icon">💬</div>
+                <h3>Chat Support</h3>
+                <p>Need help? Our support team is available 24/7 to assist you with any questions.</p>
+            </div>
+            
+            <div class="card slide-in delay-3">
+                <div class="card-icon">🐛</div>
+                <h3>Report Issues</h3>
+                <p>Found a bug or have a feature request? Let us know and we'll address it promptly.</p>
+            </div>
+        </div>
+
+        <section style="margin-top: 3rem;">
+            <h2>Contact Form</h2>
+            <form style="max-width: 600px; margin: 0 auto;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Name</label>
+                    <input type="text" id="name" name="name" style="width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email</label>
+                    <input type="email" id="email" name="email" style="width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="subject" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Subject</label>
+                    <select id="subject" name="subject" style="width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        <option value="">Select a topic</option>
+                        <option value="support">Technical Support</option>
+                        <option value="billing">Billing Question</option>
+                        <option value="feature">Feature Request</option>
+                        <option value="bug">Bug Report</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <label for="message" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Message</label>
+                    <textarea id="message" name="message" rows="6" style="width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; resize: vertical;" placeholder="Tell us how we can help you..."></textarea>
+                </div>
+                
+                <button type="submit" class="button" style="width: 100%; font-size: 1.1rem;">Send Message</button>
+            </form>
+        </section>
+
+        <section style="margin-top: 3rem; text-align: center;">
+            <h2>Other Ways to Connect</h2>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 2rem;">
+                <a href="#" class="button button-secondary">📱 Discord</a>
+                <a href="#" class="button button-secondary">🐦 Twitter</a>
+                <a href="#" class="button button-secondary">📺 YouTube</a>
+                <a href="#" class="button button-secondary">📖 Documentation</a>
+            </div>
+        </section>
+
+        <div class="footer">
+            <p>&copy; 2024 Yeet. Making deployment effortless.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "@yeet/cli",
+  "version": "1.0.0",
+  "description": "Yeet CLI for managing static site deployments",
+  "main": "index.ts",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "yeet": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "bun run index.ts ./test-site",
+    "build": "bun build index.ts --outdir dist --target node --minify",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "citty": "^0.1.5",
+    "chalk": "^5.0.0",
+    "cli-spinners": "^2.9.2"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  },
+  "keywords": [
+    "cli",
+    "deployment",
+    "static-sites",
+    "yeet"
+  ]
+}

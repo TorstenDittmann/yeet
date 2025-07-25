@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features | Yeet Test Site</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/animations.css">
+</head>
+<body>
+    <div class="container fade-in">
+        <nav class="navbar">
+            <a href="../index.html" class="nav-logo">🚀 Yeet</a>
+            <ul></ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="features.html" class="active">Features</a></li>
+            </ul>
+        </nav>
+
+        <div class="hero">
+            <span class="hero-emoji">⭐</span>
+            <h1>Powerful Features</h1>
+            <p>Everything you need for effortless static site deployment</p>
+        </div>
+
+        <div class="grid">
+            <div class="card slide-in delay-1">
+                <div class="card-icon">⚡</div>
+                <h3>Instant Deployment</h3>
+                <p>Deploy your sites in seconds with our optimized upload process and global CDN infrastructure.</p>
+            </div>
+            
+            <div class="card slide-in delay-2">
+                <div class="card-icon">🎯</div>
+                <h3>Smart File Detection</h3>
+                <p>Automatically excludes build artifacts, dependencies, and system files for clean deployments.</p>
+            </div>
+            
+            <div class="card slide-in delay-3">
+                <div class="card-icon">🌐</div>
+                <h3>Random Domains</h3>
+                <p>Get unique, memorable subdomains for each deployment. Perfect for sharing and testing.</p>
+            </div>
+
+            <div class="card slide-in delay-1">
+                <div class="card-icon">🔧</div>
+                <h3>Zero Configuration</h3>
+                <p>Works out of the box. No complex setup, no YAML files, no lengthy onboarding process.</p>
+            </div>
+            
+            <div class="card slide-in delay-2">
+                <div class="card-icon">📊</div>
+                <h3>Progress Indicators</h3>
+                <p>Beautiful terminal animations keep you informed about upload progress and deployment status.</p>
+            </div>
+            
+            <div class="card slide-in delay-3">
+                <div class="card-icon">🎨</div>
+                <h3>Framework Agnostic</h3>
+                <p>Works with React, Vue, Angular, plain HTML, or any static site generator you prefer.</p>
+            </div>
+        </div>
+
+        <section style="margin-top: 4rem;">
+            <h2>Command Line Interface</h2>
+            <div class="code">
+# Basic usage
+yeet
+
+# Deploy specific directory
+yeet ./build
+
+# Use custom server
+yeet ./dist --server https://my-server.com
+
+# Get help
+yeet --help
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>Supported File Types</h2>
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="card">
+                    <h4>Web Assets</h4>
+                    <p>HTML, CSS, JavaScript, TypeScript, JSON, XML</p>
+                </div>
+                <div class="card">
+                    <h4>Images</h4>
+                    <p>PNG, JPG, JPEG, GIF, SVG, WebP, ICO</p>
+                </div>
+                <div class="card">
+                    <h4>Fonts</h4>
+                    <p></p>WOFF, WOFF2, TTF, OTF, EOT</p>
+                </div>
+                <div class="card">
+                    <h4>Documents</h4>
+                    <p>PDF, TXT, MD, CSV, and more</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>Environment Configuration</h2>
+            <p></p>Customize your deployment settings with environment variables:</p>
+            <div class="code">
+# .env file
+YEET_SERVER_URL=https://your-yeet-server.com
+SERVER_URL=http://localhost:3000
+
+# Command line override
+yeet --server https://staging.yeet.io
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem; text-align: center;">
+            <h2>Ready to Get Started?</h2>
+            <p>Deploy your first site in under 30 seconds</p>
+            <div style="margin-top: 2rem;">
+                <a href="../index.html" class="button" style="margin-right: 1rem;">Try Now</a>
+                <a href="about.html" class="button button-secondary">Learn More</a>
+            </div>
+        </section>
+
+        <div class="footer">
+            <p>&copy; 2024 Yeet. Making deployment effortless.</p>
+        </div>
+    </div>
+</body>
+</html>

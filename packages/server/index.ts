@@ -69,13 +69,10 @@ function generate_random_domain(): string {
 	return `${adjective}-${noun}-${suffix}`;
 }
 
-
-
 const http = serve({
 	routes: {
 		"/publish": {
 			POST: async (req) => {
-				const url = new URL(req.url);
 				const content_type = req.headers.get("content-type");
 
 				if (!content_type?.includes("multipart/form-data")) {
@@ -100,32 +97,36 @@ const http = serve({
 
 				try {
 					// Filter out string entries and validate files
-					const files = file_entries.filter((file): file is File => typeof file !== "string");
-					
+					const files = file_entries.filter(
+						(file): file is File => typeof file !== "string",
+					);
+
 					// Process all files concurrently
-					await Promise.all(files.map(async (file) => {
-						// Check file size (10MB limit)
-						if (file.size > 10 * 1024 * 1024) {
-							throw new Error(
-								`File ${file.name} exceeds 10MB limit (${Math.round((file.size / 1024 / 1024) * 100) / 100}MB)`,
-								{
-									cause: 400,
-								},
+					await Promise.all(
+						files.map(async (file) => {
+							// Check file size (10MB limit)
+							if (file.size > 10 * 1024 * 1024) {
+								throw new Error(
+									`File ${file.name} exceeds 10MB limit (${Math.round((file.size / 1024 / 1024) * 100) / 100}MB)`,
+									{
+										cause: 400,
+									},
+								);
+							}
+
+							// Prevent path traversal and normalize path
+							const safe_relative_path = normalize(file.name);
+							const s3_path = join(
+								"yeet",
+								domain,
+								safe_relative_path,
 							);
-						}
+							const array_buffer = await file.arrayBuffer();
+							const buffer = new Uint8Array(array_buffer);
 
-						// Prevent path traversal and normalize path
-						const safe_relative_path = normalize(file.name);
-						const s3_path = join(
-							"yeet",
-							domain,
-							safe_relative_path,
-						);
-						const array_buffer = await file.arrayBuffer();
-						const buffer = new Uint8Array(array_buffer);
-
-						await client.file(s3_path).write(buffer);
-					}));
+							await client.file(s3_path).write(buffer);
+						}),
+					);
 
 					return Response.json(
 						{
@@ -156,80 +157,88 @@ const http = serve({
 				}
 			},
 		},
-	},
+		"/*": {
+			GET: async (req) => {
+				const { hostname, pathname } = new URL(req.url);
 
-	async fetch(req) {
-		const { hostname, pathname } = new URL(req.url);
+				// Normalize hostname to lowercase
+				const normalized_hostname = hostname.toLowerCase();
+				// Check if it's a subdomain based on configured domain
+				const is_subdomain =
+					normalized_hostname !== ORIGIN &&
+					normalized_hostname.endsWith(`.${ORIGIN}`);
 
-		// Normalize hostname to lowercase
-		const normalized_hostname = hostname.toLowerCase();
-		// Check if it's a subdomain based on configured domain
-		const is_subdomain =
-			normalized_hostname !== ORIGIN &&
-			normalized_hostname.endsWith(`.${ORIGIN}`);
+				if (is_subdomain) {
+					// Prevent path traversal and normalize path
+					const safe_path = normalize(pathname);
+					const domain = normalized_hostname.replace(
+						`.${ORIGIN}`,
+						"",
+					);
+					const folder_path = join("yeet", domain);
+					let file_path = join(folder_path, safe_path);
 
-		if (is_subdomain) {
-			// Prevent path traversal and normalize path
-			const safe_path = normalize(pathname);
-			const domain = normalized_hostname.replace(`.${ORIGIN}`, "");
-			const folder_path = join("yeet", domain);
-			let file_path = join(folder_path, safe_path);
+					// Handle trailing slash
+					if (file_path.endsWith("/")) {
+						file_path += "index.html";
+					}
 
-			// Handle trailing slash
-			if (file_path.endsWith("/")) {
-				file_path += "index.html";
-			}
+					// Try exact file first
+					const file = client.file(file_path);
+					if (await file.exists()) {
+						return new Response(file.stream(), {
+							headers: {
+								"Content-Type": mime.getType(file_path)!,
+							},
+						});
+					}
 
-			// Try exact file first
-			const file = client.file(file_path);
-			if (await file.exists()) {
-				return new Response(file.stream(), {
-					headers: {
-						"Content-Type": mime.getType(file_path)!,
-					},
-				});
-			}
+					// For extensionless paths, try .html (for clean URLs)
+					if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
+						const html_file = client.file(file_path + ".html");
+						if (await html_file.exists()) {
+							return new Response(html_file.stream(), {
+								headers: {
+									"Content-Type": "text/html",
+								},
+							});
+						}
 
-			// For extensionless paths, try .html (for clean URLs)
-			if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
-				const html_file = client.file(file_path + ".html");
-				if (await html_file.exists()) {
-					return new Response(html_file.stream(), {
-						headers: {
-							"Content-Type": "text/html",
-						},
-					});
+						// Also try as directory with index.html
+						const dir_index = client.file(
+							join(file_path, "index.html"),
+						);
+						if (await dir_index.exists()) {
+							return new Response(dir_index.stream(), {
+								headers: {
+									"Content-Type": "text/html",
+								},
+							});
+						}
+					}
+
+					// Serve 200.html if exists for client side routing with SPA
+					const fallback_file = client.file(
+						join(folder_path, "200.html"),
+					);
+					if (await fallback_file.exists()) {
+						return new Response(fallback_file.stream(), {
+							status: 404,
+							headers: {
+								"Content-Type": "text/html",
+							},
+						});
+					}
+
+					return new Response("File Not Found", { status: 404 });
 				}
 
-				// Also try as directory with index.html
-				const dir_index = client.file(join(file_path, "index.html"));
-				if (await dir_index.exists()) {
-					return new Response(dir_index.stream(), {
-						headers: {
-							"Content-Type": "text/html",
-						},
-					});
-				}
-			}
-
-			// Serve 200.html if exists for client side routing with SPA
-			const fallback_file = client.file(join(folder_path, "200.html"));
-			if (await fallback_file.exists()) {
-				return new Response(fallback_file.stream(), {
-					status: 404,
-					headers: {
-						"Content-Type": "text/html",
-					},
+				// Handle root domain - serve a simple landing page
+				return new Response("Welcome to Yeet - Static Site Hosting", {
+					status: 200,
 				});
-			}
-
-			return new Response("File Not Found", { status: 404 });
-		}
-
-		// Handle root domain - serve a simple landing page
-		return new Response("Welcome to Yeet - Static Site Hosting", {
-			status: 200,
-		});
+			},
+		},
 	},
 });
 

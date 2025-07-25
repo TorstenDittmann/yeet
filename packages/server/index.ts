@@ -163,7 +163,7 @@ const http = serve({
 			normalized_hostname !== ORIGIN &&
 			normalized_hostname.endsWith(`.${ORIGIN}`);
 
-		console.log({ normalized_hostname, is_subdomain });
+		console.log({ normalized_hostname, is_subdomain, ORIGIN });
 		if (is_subdomain) {
 			// Prevent path traversal and normalize path
 			const safe_path = normalize(pathname);

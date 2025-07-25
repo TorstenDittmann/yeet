@@ -124,6 +124,7 @@ const http = serve({
 							const array_buffer = await file.arrayBuffer();
 							const buffer = new Uint8Array(array_buffer);
 
+							console.log({ safe_relative_path, s3_path });
 							await client.file(s3_path).write(buffer);
 						}),
 					);

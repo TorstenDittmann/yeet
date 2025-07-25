@@ -104,10 +104,10 @@ const http = serve({
 					
 					// Process all files concurrently
 					await Promise.all(files.map(async (file) => {
-						// Check file size (5MB limit)
-						if (file.size > 5 * 1024 * 1024) {
+						// Check file size (10MB limit)
+						if (file.size > 10 * 1024 * 1024) {
 							throw new Error(
-								`File ${file.name} exceeds 5MB limit (${Math.round((file.size / 1024 / 1024) * 100) / 100}MB)`,
+								`File ${file.name} exceeds 10MB limit (${Math.round((file.size / 1024 / 1024) * 100) / 100}MB)`,
 								{
 									cause: 400,
 								},

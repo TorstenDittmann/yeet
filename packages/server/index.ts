@@ -32,6 +32,16 @@ function generate_random_domain(): string {
 		"smart",
 		"bold",
 		"calm",
+		"stupid",
+		"clever",
+		"intelligent",
+		"brilliant",
+		"genius",
+		"insightful",
+		"knowledgeable",
+		"learned",
+		"smart",
+		"wise",
 	];
 	const nouns = [
 		"cat",
@@ -44,6 +54,10 @@ function generate_random_domain(): string {
 		"sun",
 		"wave",
 		"fire",
+		"cloud",
+		"rain",
+		"wind",
+		"storm",
 	];
 
 	const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
@@ -111,7 +125,7 @@ const http = serve({
 					return Response.json(
 						{
 							domain: `${domain}.${url.host}`,
-							url: `${url.protocol}//${domain}.${url.host}`,
+							url: `https://${domain}.${url.host}`,
 							total_files: file_entries.length,
 						},
 						{ status: 201 },
@@ -119,7 +133,7 @@ const http = serve({
 				} catch (error) {
 					console.error(error);
 					// check error cause is 400, if not its 500
-					if (error.cause === 400) {
+					if (error instanceof Error && error.cause === 400) {
 						return Response.json(
 							{
 								error: error.message,
@@ -144,12 +158,12 @@ const http = serve({
 
 		// Normalize hostname to lowercase
 		const normalized_hostname = hostname.toLowerCase();
-
 		// Check if it's a subdomain based on configured domain
 		const is_subdomain =
 			normalized_hostname !== ORIGIN &&
 			normalized_hostname.endsWith(`.${ORIGIN}`);
 
+		console.log({ normalized_hostname, is_subdomain });
 		if (is_subdomain) {
 			// Prevent path traversal and normalize path
 			const safe_path = normalize(pathname);

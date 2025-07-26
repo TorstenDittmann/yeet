@@ -223,7 +223,10 @@ const http = serve({
 					// Try exact file first
 					const file = client.file(file_path);
 					if (await file.exists()) {
-						db.hincrby("stats", "bandwidth", file.size);
+						console.log({ file });
+						if (file.size)
+							db.hincrby("stats", "bandwidth", file.size);
+
 						return new Response(file.stream(), {
 							headers: {
 								"Content-Type": mime.getType(file_path)!,
@@ -236,7 +239,12 @@ const http = serve({
 					if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
 						const html_file = client.file(file_path + ".html");
 						if (await html_file.exists()) {
-							db.hincrby("stats", "bandwidth", html_file.size);
+							if (html_file.size)
+								db.hincrby(
+									"stats",
+									"bandwidth",
+									html_file.size,
+								);
 							return new Response(html_file.stream(), {
 								headers: {
 									"Content-Type": "text/html",
@@ -250,7 +258,12 @@ const http = serve({
 							join(file_path, "index.html"),
 						);
 						if (await dir_index.exists()) {
-							db.hincrby("stats", "bandwidth", dir_index.size);
+							if (dir_index.size)
+								db.hincrby(
+									"stats",
+									"bandwidth",
+									dir_index.size,
+								);
 							return new Response(dir_index.stream(), {
 								headers: {
 									"Content-Type": "text/html",
@@ -265,7 +278,12 @@ const http = serve({
 						join(folder_path, "200.html"),
 					);
 					if (await fallback_file.exists()) {
-						db.hincrby("stats", "bandwidth", fallback_file.size);
+						if (fallback_file.size)
+							db.hincrby(
+								"stats",
+								"bandwidth",
+								fallback_file.size,
+							);
 						return new Response(fallback_file.stream(), {
 							status: 404,
 							headers: {

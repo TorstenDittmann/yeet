@@ -1,10 +1,6 @@
 # Multi-stage build for optimized production image
 FROM oven/bun:1 AS base
 
-# Install security updates
-RUN apk update && apk upgrade && \
-    rm -rf /var/cache/apk/*
-
 WORKDIR /app
 
 # ================================

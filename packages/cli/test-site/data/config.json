@@ -1,76 +1,76 @@
 {
-  "site": {
-    "name": "Yeet Test Site",
-    "version": "1.0.0",
-    "description": "A test site for demonstrating Yeet CLI deployment",
-    "author": "Yeet Team",
-    "url": "https://yeet.dev",
-    "created": "2024-01-15",
-    "updated": "2024-07-25"
-  },
-  "features": [
-    {
-      "id": "instant-deploy",
-      "name": "Instant Deployment",
-      "description": "Deploy sites in seconds",
-      "icon": "⚡",
-      "enabled": true
-    },
-    {
-      "id": "smart-detection",
-      "name": "Smart File Detection",
-      "description": "Automatically excludes unnecessary files",
-      "icon": "🎯",
-      "enabled": true
-    },
-    {
-      "id": "random-domains",
-      "name": "Random Domains",
-      "description": "Unique subdomains for each deployment",
-      "icon": "🌐",
-      "enabled": true
-    },
-    {
-      "id": "zero-config",
-      "name": "Zero Configuration",
-      "description": "Works out of the box",
-      "icon": "🔧",
-      "enabled": true
-    }
-  ],
-  "navigation": [
-    {
-      "label": "Home",
-      "url": "/index.html",
-      "active": false
-    },
-    {
-      "label": "About",
-      "url": "/pages/about.html",
-      "active": false
-    },
-    {
-      "label": "Contact",
-      "url": "/pages/contact.html",
-      "active": false
-    },
-    {
-      "label": "Features",
-      "url": "/pages/features.html",
-      "active": false
-    }
-  ],
-  "settings": {
-    "theme": "default",
-    "animations": true,
-    "analytics": false,
-    "compression": true,
-    "cache_duration": 3600
-  },
-  "social": {
-    "twitter": "@yeet_dev",
-    "github": "yeet-org/yeet",
-    "discord": "yeet-community",
-    "email": "hello@yeet.dev"
-  }
+	"site": {
+		"name": "Yeet Test Site",
+		"version": "1.0.0",
+		"description": "A test site for demonstrating Yeet CLI deployment",
+		"author": "Yeet Team",
+		"url": "https://yeet.dev",
+		"created": "2024-01-15",
+		"updated": "2024-07-25"
+	},
+	"features": [
+		{
+			"id": "instant-deploy",
+			"name": "Instant Deployment",
+			"description": "Deploy sites in seconds",
+			"icon": "⚡",
+			"enabled": true
+		},
+		{
+			"id": "smart-detection",
+			"name": "Smart File Detection",
+			"description": "Automatically excludes unnecessary files",
+			"icon": "🎯",
+			"enabled": true
+		},
+		{
+			"id": "random-domains",
+			"name": "Random Domains",
+			"description": "Unique subdomains for each deployment",
+			"icon": "🌐",
+			"enabled": true
+		},
+		{
+			"id": "zero-config",
+			"name": "Zero Configuration",
+			"description": "Works out of the box",
+			"icon": "🔧",
+			"enabled": true
+		}
+	],
+	"navigation": [
+		{
+			"label": "Home",
+			"url": "/index.html",
+			"active": false
+		},
+		{
+			"label": "About",
+			"url": "/pages/about.html",
+			"active": false
+		},
+		{
+			"label": "Contact",
+			"url": "/pages/contact.html",
+			"active": false
+		},
+		{
+			"label": "Features",
+			"url": "/pages/features.html",
+			"active": false
+		}
+	],
+	"settings": {
+		"theme": "default",
+		"animations": true,
+		"analytics": false,
+		"compression": true,
+		"cache_duration": 3600
+	},
+	"social": {
+		"twitter": "@yeet_dev",
+		"github": "yeet-org/yeet",
+		"discord": "yeet-community",
+		"email": "hello@yeet.dev"
+	}
 }

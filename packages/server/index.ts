@@ -1,8 +1,8 @@
-import { RedisClient, S3Client, serve, type S3File } from "bun";
-import { join, normalize } from "node:path";
-import { randomBytes } from "node:crypto";
-import mime from "mime";
 import type { File } from "node:buffer";
+import { randomBytes } from "node:crypto";
+import { join, normalize } from "node:path";
+import { RedisClient, S3Client, type S3File, serve } from "bun";
+import mime from "mime";
 
 const {
 	S3_REGION,
@@ -41,7 +41,7 @@ function formatBytes(bytes: number): string {
 	const k = 1024;
 	const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+	return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
 // Format numbers with locale-aware abbreviations
@@ -136,8 +136,7 @@ const http = serve({
 				try {
 					// Filter out string entries and validate files
 					const files = file_entries.filter(
-						(file): file is File =>
-							typeof file !== "string" && !!file.name,
+						(file): file is File => typeof file !== "string" && !!file.name,
 					);
 					let bytes = 0;
 					// Process all files concurrently
@@ -155,11 +154,7 @@ const http = serve({
 
 							// Prevent path traversal and normalize path
 							const safe_relative_path = normalize(file.name);
-							const s3_path = join(
-								"yeet",
-								domain,
-								safe_relative_path,
-							);
+							const s3_path = join("yeet", domain, safe_relative_path);
 							const array_buffer = await file.arrayBuffer();
 							const buffer = new Uint8Array(array_buffer);
 							bytes += await client.file(s3_path).write(buffer);
@@ -213,10 +208,7 @@ const http = serve({
 					db.hincrby("stats", "requests", 1);
 					// Prevent path traversal and normalize path
 					const safe_path = normalize(pathname);
-					const domain = normalized_hostname.replace(
-						`.${ORIGIN}`,
-						"",
-					);
+					const domain = normalized_hostname.replace(`.${ORIGIN}`, "");
 					const folder_path = join("yeet", domain);
 					let file_path = join(folder_path, safe_path);
 
@@ -240,7 +232,7 @@ const http = serve({
 
 					// For extensionless paths, try .html (for clean URLs)
 					if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
-						const html_file = client.file(file_path + ".html");
+						const html_file = client.file(`${file_path}.html`);
 						if (await html_file.exists()) {
 							report_bandwith_for_s3(html_file);
 
@@ -253,9 +245,7 @@ const http = serve({
 						}
 
 						// Also try as directory with index.html
-						const dir_index = client.file(
-							join(file_path, "index.html"),
-						);
+						const dir_index = client.file(join(file_path, "index.html"));
 						if (await dir_index.exists()) {
 							report_bandwith_for_s3(dir_index);
 
@@ -269,9 +259,7 @@ const http = serve({
 					}
 
 					// Serve 200.html if exists for client side routing with SPA
-					const fallback_file = client.file(
-						join(folder_path, "200.html"),
-					);
+					const fallback_file = client.file(join(folder_path, "200.html"));
 					if (await fallback_file.exists()) {
 						report_bandwith_for_s3(fallback_file);
 
@@ -303,14 +291,8 @@ const http = serve({
 						"{{TOTAL_DEPLOYMENTS}}",
 						formatNumber(stats?.deployments || 0),
 					)
-					.replace(
-						"{{TOTAL_REQUESTS}}",
-						formatNumber(stats?.requests || 0),
-					)
-					.replace(
-						"{{TOTAL_BANDWIDTH}}",
-						formatBytes(stats?.bandwidth || 0),
-					);
+					.replace("{{TOTAL_REQUESTS}}", formatNumber(stats?.requests || 0))
+					.replace("{{TOTAL_BANDWIDTH}}", formatBytes(stats?.bandwidth || 0));
 
 				return new Response(statsHtml, {
 					status: 200,
@@ -321,7 +303,7 @@ const http = serve({
 			},
 		},
 	},
-	fetch(req) {
+	fetch() {
 		return new Response(Bun.file("./404.html"), { status: 404 });
 	},
 });

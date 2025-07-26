@@ -1,26 +1,26 @@
 {
-  "name": "@yeet/server",
-  "version": "1.0.0",
-  "description": "Yeet static site hosting server",
-  "main": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "bun run index.ts",
-    "start": "bun run ./dist/index.js",
-    "build": "bun build index.ts --target=bun --production --outdir=dist --sourcemap=linked",
-    "type-check": "tsc --noEmit"
-  },
-  "dependencies": {
-    "mime": "^4.0.7"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "^5"
-  },
-  "keywords": [
-    "static-hosting",
-    "bun",
-    "server"
-  ]
+	"name": "@yeet/server",
+	"version": "1.0.0",
+	"description": "Yeet static site hosting server",
+	"main": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "bun run index.ts",
+		"start": "bun run ./dist/index.js",
+		"build": "bun build index.ts --target=bun --production --outdir=dist --sourcemap=linked",
+		"type-check": "tsc --noEmit"
+	},
+	"dependencies": {
+		"mime": "^4.0.7"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"typescript": "^5"
+	},
+	"keywords": [
+		"static-hosting",
+		"bun",
+		"server"
+	]
 }

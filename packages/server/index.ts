@@ -203,9 +203,7 @@ const http = serve({
 				const is_subdomain =
 					normalized_hostname !== ORIGIN &&
 					normalized_hostname.endsWith(`.${ORIGIN}`);
-				db.hincrby("stats", "requests", 1);
 
-				console.log(await db.hgetall("stats"));
 				if (is_subdomain) {
 					db.hincrby("stats", "requests", 1);
 					// Prevent path traversal and normalize path

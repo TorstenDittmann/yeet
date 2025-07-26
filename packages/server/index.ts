@@ -32,25 +32,25 @@ function get_cache_headers() {
 
 // Format bytes to human readable format
 function formatBytes(bytes: number): string {
-	if (bytes === 0) return '0 Bytes';
+	if (bytes === 0) return "0 Bytes";
 	const k = 1024;
-	const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+	const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
 // Format numbers with locale-aware abbreviations
 function formatNumber(num: number): string {
 	if (num < 1000) {
-		return new Intl.NumberFormat('en-US').format(num);
+		return new Intl.NumberFormat("en-US").format(num);
 	}
-	
-	const formatter = new Intl.NumberFormat('en-US', {
-		notation: 'compact',
-		compactDisplay: 'short',
-		maximumFractionDigits: 1
+
+	const formatter = new Intl.NumberFormat("en-US", {
+		notation: "compact",
+		compactDisplay: "short",
+		maximumFractionDigits: 1,
 	});
-	
+
 	return formatter.format(num);
 }
 
@@ -134,7 +134,7 @@ const http = serve({
 						(file): file is File =>
 							typeof file !== "string" && !!file.name,
 					);
-
+					let bytes = 0;
 					// Process all files concurrently
 					await Promise.all(
 						files.map(async (file) => {
@@ -157,13 +157,11 @@ const http = serve({
 							);
 							const array_buffer = await file.arrayBuffer();
 							const buffer = new Uint8Array(array_buffer);
-							const bytes = await client
-								.file(s3_path)
-								.write(buffer);
-							db.hincrby("stats", "bandwidth", bytes);
+							bytes += await client.file(s3_path).write(buffer);
 						}),
 					);
 
+					db.hincrby("stats", "bandwidth", bytes);
 					db.hincrby("stats", "deployments", 1);
 
 					return Response.json(
@@ -290,13 +288,21 @@ const http = serve({
 					deployments?: number | undefined;
 				} | null = await db.hgetall("stats");
 
-				
 				// Inject stats into HTML
 				const statsHtml = website
-					.replace('{{TOTAL_DEPLOYMENTS}}', formatNumber(stats?.deployments || 0))
-					.replace('{{TOTAL_REQUESTS}}', formatNumber(stats?.requests || 0))
-					.replace('{{TOTAL_BANDWIDTH}}', formatBytes(stats?.bandwidth || 0));
-				
+					.replace(
+						"{{TOTAL_DEPLOYMENTS}}",
+						formatNumber(stats?.deployments || 0),
+					)
+					.replace(
+						"{{TOTAL_REQUESTS}}",
+						formatNumber(stats?.requests || 0),
+					)
+					.replace(
+						"{{TOTAL_BANDWIDTH}}",
+						formatBytes(stats?.bandwidth || 0),
+					);
+
 				return new Response(statsHtml, {
 					status: 200,
 					headers: {

@@ -1,4 +1,4 @@
-import { RedisClient, S3Client, serve } from "bun";
+import { RedisClient, S3Client, serve, type S3File } from "bun";
 import { join, normalize } from "node:path";
 import { randomBytes } from "node:crypto";
 import mime from "mime";
@@ -28,6 +28,11 @@ function get_cache_headers() {
 		"Cache-Control": "public, max-age=31536000",
 		Expires: new Date(Date.now() + 31536000000).toUTCString(),
 	};
+}
+
+async function report_bandwith_for_s3(file: S3File) {
+	const stat = await file.stat();
+	db.hincrby("stats", "bandwidth", stat.size);
 }
 
 // Format bytes to human readable format
@@ -223,9 +228,7 @@ const http = serve({
 					// Try exact file first
 					const file = client.file(file_path);
 					if (await file.exists()) {
-						console.log({ file });
-						if (file.size)
-							db.hincrby("stats", "bandwidth", file.size);
+						report_bandwith_for_s3(file);
 
 						return new Response(file.stream(), {
 							headers: {
@@ -239,12 +242,8 @@ const http = serve({
 					if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
 						const html_file = client.file(file_path + ".html");
 						if (await html_file.exists()) {
-							if (html_file.size)
-								db.hincrby(
-									"stats",
-									"bandwidth",
-									html_file.size,
-								);
+							report_bandwith_for_s3(html_file);
+
 							return new Response(html_file.stream(), {
 								headers: {
 									"Content-Type": "text/html",
@@ -258,12 +257,8 @@ const http = serve({
 							join(file_path, "index.html"),
 						);
 						if (await dir_index.exists()) {
-							if (dir_index.size)
-								db.hincrby(
-									"stats",
-									"bandwidth",
-									dir_index.size,
-								);
+							report_bandwith_for_s3(dir_index);
+
 							return new Response(dir_index.stream(), {
 								headers: {
 									"Content-Type": "text/html",
@@ -278,12 +273,8 @@ const http = serve({
 						join(folder_path, "200.html"),
 					);
 					if (await fallback_file.exists()) {
-						if (fallback_file.size)
-							db.hincrby(
-								"stats",
-								"bandwidth",
-								fallback_file.size,
-							);
+						report_bandwith_for_s3(fallback_file);
+
 						return new Response(fallback_file.stream(), {
 							status: 404,
 							headers: {

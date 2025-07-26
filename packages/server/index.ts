@@ -284,7 +284,9 @@ const http = serve({
 						});
 					}
 
-					return new Response("File Not Found", { status: 404 });
+					return new Response(Bun.file("./404.html"), {
+						status: 404,
+					});
 				}
 
 				// Handle root domain - serve a simple landing page
@@ -320,7 +322,7 @@ const http = serve({
 		},
 	},
 	fetch(req) {
-		return new Response("Not Found", { status: 404 });
+		return new Response(Bun.file("./404.html"), { status: 404 });
 	},
 });
 

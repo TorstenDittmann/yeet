@@ -1,389 +1,431 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YEET - Deploy Static Sites to the Cloud | Fast Preview Deployments</title>
-    <meta name="description" content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams.">
-    <meta name="keywords" content="static site deployment, preview deployment, fast hosting, developer tools, yeet, site hosting, web deployment">
-    <meta name="author" content="Torsten Dittmann">
-    <meta name="robots" content="index, follow">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://yeet.site/">
-    <meta property="og:title" content="YEET - Deploy Static Sites to the Cloud">
-    <meta property="og:description" content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams.">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://yeet.site/">
-    <meta property="twitter:title" content="YEET - Deploy Static Sites to the Cloud">
-    <meta property="twitter:description" content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams.">
-    <meta property="twitter:creator" content="@dittmanntorsten">
-    
-    <!-- Additional SEO -->
-    <link rel="canonical" href="https://yeet.site/">
-    <meta name="theme-color" content="#bb88ff">
-    <style>
-        @import url('https://fonts.bunny.net/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 800px;
-            text-align: center;
-            width: 100%;
-        }
-        
-        .ascii-art {
-            color: #bb88ff;
-            font-size: 16px;
-            line-height: 1;
-            margin-bottom: 40px;
-            white-space: pre;
-        }
-        
-        .tagline {
-            font-size: 24px;
-            color: #bb88ff;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            color: #888;
-            margin-bottom: 50px;
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-bottom: 60px;
-        }
-        
-        .feature {
-            padding: 20px;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-        }
-        
-        .feature-title {
-            color: #bb88ff;
-            font-weight: 700;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        
-        .feature-desc {
-            color: #ccc;
-            font-size: 12px;
-        }
-        
-        .install-section {
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 40px;
-        }
-        
-        .install-title {
-            color: #bb88ff;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-        
-        .code-block {
-            background: #000;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 15px;
-            margin: 15px 0;
-            color: #bb88ff;
-            font-size: 14px;
-        }
-        
-        .step {
-            margin: 20px 0;
-        }
-        
-        .step-number {
-            color: #bb88ff;
-            font-weight: 700;
-        }
-        
-        .demo {
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .demo-title {
-            color: #bb88ff;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        
-        .demo-output {
-            background: #000;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 15px;
-            text-align: left;
-            color: #888;
-            font-size: 12px;
-        }
-        
-        .stats-section {
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 40px;
-        }
-        
-        .stats-title {
-            color: #bb88ff;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        
-        .stat {
-            text-align: center;
-            padding: 20px;
-            background: #000;
-            border: 1px solid #444;
-            border-radius: 6px;
-        }
-        
-        .stat-number {
-            color: #bb88ff;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .stat-label {
-            color: #888;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .success {
-            color: #bb88ff;
-        }
-        
-        .highlight {
-            color: #00ffff;
-            font-weight: 700;
-        }
-        
-        .footer {
-            color: #666;
-            font-size: 12px;
-        }
-        
-        .footer a {
-            color: #bb88ff;
-            text-decoration: none;
-        }
-        
-        .footer a:hover {
-            color: #00ffff;
-        }
-        
-        @media (max-width: 768px) {
-            .ascii-art {
-                font-size: 12px;
-            }
-            
-            .tagline {
-                font-size: 20px;
-            }
-            
-            .subtitle {
-                font-size: 14px;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .ascii-art {
-                font-size: 10px;
-            }
-            
-            .tagline {
-                font-size: 18px;
-            }
-            
-            .container {
-                padding: 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="ascii-art">
-██    ██ ███████ ███████ ████████ 
- ██  ██  ██      ██         ██    
-  ████   █████   █████      ██    
-   ██    ██      ██         ██    
-   ██    ███████ ███████    ██    
-        </div>
-        
-        <h1 class="tagline">YEET YOUR SITE INTO THE CLOUD</h1>
-        <p class="subtitle">Deploy your static sites for previews faster than you can say "yeet"</p>
-        
-        <div class="features">
-            <div class="feature">
-                <div class="feature-title">&lt; 1 SECOND DEPLOYS</div>
-                <div class="feature-desc">Upload your site instantly for quick previews and testing</div>
-            </div>
-            <div class="feature">
-                <div class="feature-title">ZERO CONFIGURATION</div>
-                <div class="feature-desc">Just point to your build folder and YEET handles the rest</div>
-            </div>
-            <div class="feature">
-                <div class="feature-title">PREVIEW URLS</div>
-                <div class="feature-desc">Get instant shareable URLs for testing and demos</div>
-            </div>
-            <div class="feature">
-                <div class="feature-title">SSL BY DEFAULT</div>
-                <div class="feature-desc">HTTPS enabled automatically for all preview deployments</div>
-            </div>
-            <div class="feature">
-                <div class="feature-title">PERFECT FOR TESTING</div>
-                <div class="feature-desc">Share work-in-progress with clients, teammates, and stakeholders</div>
-            </div>
-            <div class="feature">
-                <div class="feature-title">NO LIMITS</div>
-                <div class="feature-desc">Deploy as many preview sites as you need, completely free</div>
-            </div>
-        </div>
-        
-        <div class="install-section">
-            <div class="install-title">GET STARTED IN 30 SECONDS</div>
-            
-            <div class="step">
-                <span class="step-number">1.</span> Install YEET globally
-                <div class="code-block">npm install -g @dittmann/yeet</div>
-            </div>
-            
-            <div class="step">
-                <span class="step-number">2.</span> Navigate to your static site folder
-                <div class="code-block">cd my-awesome-website</div>
-            </div>
-            
-            <div class="step">
-                <span class="step-number">3.</span> Deploy it
-                <div class="code-block">yeet</div>
-            </div>
-        </div>
-        
-        <div class="demo">
-            <div class="demo-title">EXAMPLE OUTPUT</div>
-            <div class="demo-output">
-🚀 Analyzing files...<br>
-📦 Compressing assets...<br>
-🌍 Uploading to edge nodes...<br>
-<span class="success">✅ DEPLOYED</span> → <span class="highlight">https://awesome-site-k8x2m.yeet.site</span><br>
-<br>
-📊 <span class="highlight">47 files</span> deployed in <span class="highlight">0.8s</span><br>
-📋 Share this preview URL with your team!
-            </div>
-        </div>
-        
-        <div class="stats-section">
-            <div class="stats-title">GLOBAL STATS</div>
-            <div class="stats-grid">
-                <div class="stat">
-                    <div class="stat-number">{{TOTAL_DEPLOYMENTS}}</div>
-                    <div class="stat-label">Total Deployments</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">{{TOTAL_REQUESTS}}</div>
-                    <div class="stat-label">Total Requests</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">{{TOTAL_BANDWIDTH}}</div>
-                    <div class="stat-label">Bandwidth Served</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            Built for developers who need fast preview deployments<br>
-            <a href="https://github.com/torstenDittmann/yeet">GitHub</a> • <a href="https://x.com/dittmanntorsten">Support</a>
-        </div>
-    </div>
-    
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "YEET",
-        "description": "Deploy static sites for preview testing in under 1 second",
-        "url": "https://yeet.site",
-        "author": {
-            "@type": "Person",
-            "name": "Torsten Dittmann",
-            "url": "https://x.com/dittmanntorsten"
-        },
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Cross-platform",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        },
-        "downloadUrl": "https://www.npmjs.com/package/@dittmann/yeet",
-        "softwareVersion": "latest",
-        "releaseNotes": "Fast static site deployment for previews and testing"
-    }
-    </script>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>
+			YEET - Deploy Static Sites to the Cloud | Fast Preview Deployments
+		</title>
+		<meta
+			name="description"
+			content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams."
+		/>
+		<meta
+			name="keywords"
+			content="static site deployment, preview deployment, fast hosting, developer tools, yeet, site hosting, web deployment"
+		/>
+		<meta name="author" content="Torsten Dittmann" />
+		<meta name="robots" content="index, follow" />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://yeet.site/" />
+		<meta
+			property="og:title"
+			content="YEET - Deploy Static Sites to the Cloud"
+		/>
+		<meta
+			property="og:description"
+			content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams."
+		/>
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://yeet.site/" />
+		<meta
+			property="twitter:title"
+			content="YEET - Deploy Static Sites to the Cloud"
+		/>
+		<meta
+			property="twitter:description"
+			content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams."
+		/>
+		<meta property="twitter:creator" content="@dittmanntorsten" />
+
+		<!-- Additional SEO -->
+		<link rel="canonical" href="https://yeet.site/" />
+		<meta name="theme-color" content="#bb88ff" />
+		<style>
+			@import url("https://fonts.bunny.net/css2?family=JetBrains+Mono:wght@400;700&display=swap");
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: "JetBrains Mono", monospace;
+				background: #0a0a0a;
+				color: #e0e0e0;
+				line-height: 1.6;
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: 20px;
+			}
+
+			.container {
+				max-width: 800px;
+				text-align: center;
+				width: 100%;
+			}
+
+			.ascii-art {
+				color: #bb88ff;
+				font-size: 16px;
+				line-height: 1;
+				margin-bottom: 40px;
+				white-space: pre;
+			}
+
+			.tagline {
+				font-size: 24px;
+				color: #bb88ff;
+				margin-bottom: 20px;
+				font-weight: 700;
+			}
+
+			.subtitle {
+				font-size: 16px;
+				color: #888;
+				margin-bottom: 50px;
+			}
+
+			.features {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+				gap: 30px;
+				margin-bottom: 60px;
+			}
+
+			.feature {
+				padding: 20px;
+				background: #111;
+				border: 1px solid #333;
+				border-radius: 8px;
+			}
+
+			.feature-title {
+				color: #bb88ff;
+				font-weight: 700;
+				margin-bottom: 10px;
+				font-size: 14px;
+			}
+
+			.feature-desc {
+				color: #ccc;
+				font-size: 12px;
+			}
+
+			.install-section {
+				background: #111;
+				border: 1px solid #333;
+				border-radius: 8px;
+				padding: 30px;
+				margin-bottom: 40px;
+			}
+
+			.install-title {
+				color: #bb88ff;
+				font-size: 18px;
+				font-weight: 700;
+				margin-bottom: 20px;
+			}
+
+			.code-block {
+				background: #000;
+				border: 1px solid #444;
+				border-radius: 4px;
+				padding: 15px;
+				margin: 15px 0;
+				color: #bb88ff;
+				font-size: 14px;
+			}
+
+			.step {
+				margin: 20px 0;
+			}
+
+			.step-number {
+				color: #bb88ff;
+				font-weight: 700;
+			}
+
+			.demo {
+				background: #111;
+				border: 1px solid #333;
+				border-radius: 8px;
+				padding: 20px;
+				margin-bottom: 40px;
+			}
+
+			.demo-title {
+				color: #bb88ff;
+				font-weight: 700;
+				margin-bottom: 15px;
+			}
+
+			.demo-output {
+				background: #000;
+				border: 1px solid #444;
+				border-radius: 4px;
+				padding: 15px;
+				text-align: left;
+				color: #888;
+				font-size: 12px;
+			}
+
+			.stats-section {
+				background: #111;
+				border: 1px solid #333;
+				border-radius: 8px;
+				padding: 30px;
+				margin-bottom: 40px;
+			}
+
+			.stats-title {
+				color: #bb88ff;
+				font-size: 18px;
+				font-weight: 700;
+				margin-bottom: 20px;
+				text-align: center;
+			}
+
+			.stats-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				gap: 20px;
+			}
+
+			.stat {
+				text-align: center;
+				padding: 20px;
+				background: #000;
+				border: 1px solid #444;
+				border-radius: 6px;
+			}
+
+			.stat-number {
+				color: #bb88ff;
+				font-size: 24px;
+				font-weight: 700;
+				margin-bottom: 8px;
+			}
+
+			.stat-label {
+				color: #888;
+				font-size: 12px;
+				text-transform: uppercase;
+				letter-spacing: 1px;
+			}
+
+			.success {
+				color: #bb88ff;
+			}
+
+			.highlight {
+				color: #00ffff;
+				font-weight: 700;
+			}
+
+			.footer {
+				color: #666;
+				font-size: 12px;
+			}
+
+			.footer a {
+				color: #bb88ff;
+				text-decoration: none;
+			}
+
+			.footer a:hover {
+				color: #00ffff;
+			}
+
+			@media (max-width: 768px) {
+				.ascii-art {
+					font-size: 12px;
+				}
+
+				.tagline {
+					font-size: 20px;
+				}
+
+				.subtitle {
+					font-size: 14px;
+				}
+
+				.features {
+					grid-template-columns: 1fr;
+					gap: 20px;
+				}
+
+				.stats-grid {
+					grid-template-columns: 1fr;
+					gap: 15px;
+				}
+			}
+
+			@media (max-width: 480px) {
+				.ascii-art {
+					font-size: 10px;
+				}
+
+				.tagline {
+					font-size: 18px;
+				}
+
+				.container {
+					padding: 10px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="ascii-art">
+				██ ██ ███████ ███████ ████████ ██ ██ ██ ██ ██ ████ █████ █████
+				██ ██ ██ ██ ██ ██ ███████ ███████ ██
+			</div>
+
+			<h1 class="tagline">YEET YOUR SITE INTO THE CLOUD</h1>
+			<p class="subtitle">
+				Deploy your static sites for previews faster than you can say
+				"yeet"
+			</p>
+
+			<div class="features">
+				<div class="feature">
+					<div class="feature-title">&lt; 1 SECOND DEPLOYS</div>
+					<div class="feature-desc">
+						Upload your site instantly for quick previews and
+						testing
+					</div>
+				</div>
+				<div class="feature">
+					<div class="feature-title">ZERO CONFIGURATION</div>
+					<div class="feature-desc">
+						Just point to your build folder and YEET handles the
+						rest
+					</div>
+				</div>
+				<div class="feature">
+					<div class="feature-title">PREVIEW URLS</div>
+					<div class="feature-desc">
+						Get instant shareable URLs for testing and demos
+					</div>
+				</div>
+				<div class="feature">
+					<div class="feature-title">SSL BY DEFAULT</div>
+					<div class="feature-desc">
+						HTTPS enabled automatically for all preview deployments
+					</div>
+				</div>
+				<div class="feature">
+					<div class="feature-title">PERFECT FOR TESTING</div>
+					<div class="feature-desc">
+						Share work-in-progress with clients, teammates, and
+						stakeholders
+					</div>
+				</div>
+				<div class="feature">
+					<div class="feature-title">NO LIMITS</div>
+					<div class="feature-desc">
+						Deploy as many preview sites as you need, completely
+						free
+					</div>
+				</div>
+			</div>
+
+			<div class="install-section">
+				<div class="install-title">GET STARTED IN 30 SECONDS</div>
+
+				<div class="step">
+					<span class="step-number">1.</span> Install YEET globally
+					<div class="code-block">npm install -g @dittmann/yeet</div>
+				</div>
+
+				<div class="step">
+					<span class="step-number">2.</span> Navigate to your static
+					site folder
+					<div class="code-block">cd my-awesome-website</div>
+				</div>
+
+				<div class="step">
+					<span class="step-number">3.</span> Deploy it
+					<div class="code-block">yeet</div>
+				</div>
+			</div>
+
+			<div class="demo">
+				<div class="demo-title">EXAMPLE OUTPUT</div>
+				<div class="demo-output">
+					🚀 Analyzing files...<br />
+					📦 Compressing assets...<br />
+					🌍 Uploading to edge nodes...<br />
+					<span class="success">✅ DEPLOYED</span> →
+					<span class="highlight"
+						>https://awesome-site-k8x2m.yeet.site</span
+					><br />
+					<br />
+					📊 <span class="highlight">47 files</span> deployed in
+					<span class="highlight">0.8s</span><br />
+					📋 Share this preview URL with your team!
+				</div>
+			</div>
+
+			<div class="stats-section">
+				<div class="stats-title">GLOBAL STATS</div>
+				<div class="stats-grid">
+					<div class="stat">
+						<div class="stat-number">{{TOTAL_DEPLOYMENTS}}</div>
+						<div class="stat-label">Total Deployments</div>
+					</div>
+					<div class="stat">
+						<div class="stat-number">{{TOTAL_REQUESTS}}</div>
+						<div class="stat-label">Total Requests</div>
+					</div>
+					<div class="stat">
+						<div class="stat-number">{{TOTAL_BANDWIDTH}}</div>
+						<div class="stat-label">Bandwidth Served</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="footer">
+				Built for developers who need fast preview deployments<br />
+				<a href="https://github.com/torstenDittmann/yeet">GitHub</a> •
+				<a href="https://x.com/dittmanntorsten">Support</a>
+			</div>
+		</div>
+
+		<!-- Structured Data -->
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "SoftwareApplication",
+				"name": "YEET",
+				"description": "Deploy static sites for preview testing in under 1 second",
+				"url": "https://yeet.site",
+				"author": {
+					"@type": "Person",
+					"name": "Torsten Dittmann",
+					"url": "https://x.com/dittmanntorsten"
+				},
+				"applicationCategory": "DeveloperApplication",
+				"operatingSystem": "Cross-platform",
+				"offers": {
+					"@type": "Offer",
+					"price": "0",
+					"priceCurrency": "USD"
+				},
+				"downloadUrl": "https://www.npmjs.com/package/@dittmann/yeet",
+				"softwareVersion": "latest",
+				"releaseNotes": "Fast static site deployment for previews and testing"
+			}
+		</script>
+	</body>
 </html>

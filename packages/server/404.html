@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>404 - Page Not Found | YEET</title>
+		<meta
+			name="description"
+			content="Oops! This page got yeeted into the void. The page you're looking for doesn't exist."
+		/>
+		<meta name="robots" content="noindex, nofollow" />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://yeet.site/404" />
+		<meta property="og:title" content="404 - Page Not Found | YEET" />
+		<meta
+			property="og:description"
+			content="Oops! This page got yeeted into the void."
+		/>
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary" />
+		<meta property="twitter:title" content="404 - Page Not Found | YEET" />
+		<meta
+			property="twitter:description"
+			content="Oops! This page got yeeted into the void."
+		/>
+		<meta property="twitter:creator" content="@dittmanntorsten" />
+
+		<meta name="theme-color" content="#bb88ff" />
+		<style>
+			@import url("https://fonts.bunny.net/css2?family=JetBrains+Mono:wght@400;700&display=swap");
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: "JetBrains Mono", monospace;
+				background: #0a0a0a;
+				color: #e0e0e0;
+				line-height: 1.6;
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: 20px;
+			}
+
+			.container {
+				max-width: 600px;
+				text-align: center;
+				width: 100%;
+			}
+
+			.error-code {
+				font-size: 120px;
+				color: #bb88ff;
+				font-weight: 700;
+				line-height: 1;
+				margin-bottom: 20px;
+				text-shadow: 0 0 20px rgba(187, 136, 255, 0.3);
+			}
+
+			.error-message {
+				font-size: 24px;
+				color: #bb88ff;
+				margin-bottom: 15px;
+				font-weight: 700;
+			}
+
+			.error-description {
+				font-size: 16px;
+				color: #888;
+				margin-bottom: 40px;
+				line-height: 1.5;
+			}
+
+			.ascii-sad {
+				color: #bb88ff;
+				font-size: 14px;
+				line-height: 1;
+				margin-bottom: 30px;
+				white-space: pre;
+			}
+
+			.actions {
+				display: flex;
+				flex-direction: column;
+				gap: 15px;
+				align-items: center;
+			}
+
+			.btn {
+				display: inline-block;
+				padding: 12px 24px;
+				background: #111;
+				border: 2px solid #bb88ff;
+				color: #bb88ff;
+				text-decoration: none;
+				border-radius: 6px;
+				font-family: "JetBrains Mono", monospace;
+				font-size: 14px;
+				font-weight: 700;
+				transition: all 0.3s ease;
+				min-width: 200px;
+			}
+
+			.btn:hover {
+				background: #bb88ff;
+				color: #0a0a0a;
+				box-shadow: 0 0 15px rgba(187, 136, 255, 0.5);
+			}
+
+			.btn-secondary {
+				background: transparent;
+				border: 1px solid #333;
+				color: #888;
+			}
+
+			.btn-secondary:hover {
+				background: #333;
+				color: #e0e0e0;
+				border-color: #555;
+			}
+
+			.suggestions {
+				background: #111;
+				border: 1px solid #333;
+				border-radius: 8px;
+				padding: 20px;
+				margin-top: 30px;
+				text-align: left;
+			}
+
+			.suggestions-title {
+				color: #bb88ff;
+				font-weight: 700;
+				margin-bottom: 15px;
+				text-align: center;
+			}
+
+			.suggestion {
+				margin: 8px 0;
+				color: #ccc;
+				font-size: 14px;
+			}
+
+			.suggestion::before {
+				content: "→ ";
+				color: #bb88ff;
+				font-weight: 700;
+			}
+
+			.footer {
+				position: absolute;
+				bottom: 20px;
+				color: #666;
+				font-size: 12px;
+			}
+
+			.footer a {
+				color: #bb88ff;
+				text-decoration: none;
+			}
+
+			.footer a:hover {
+				color: #00ffff;
+			}
+
+			@media (max-width: 768px) {
+				.error-code {
+					font-size: 80px;
+				}
+
+				.error-message {
+					font-size: 20px;
+				}
+
+				.error-description {
+					font-size: 14px;
+				}
+
+				.ascii-sad {
+					font-size: 12px;
+				}
+			}
+
+			@media (max-width: 480px) {
+				.error-code {
+					font-size: 60px;
+				}
+
+				.error-message {
+					font-size: 18px;
+				}
+
+				.container {
+					padding: 10px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="error-code">404</div>
+			<h1 class="error-message">OOPS! THIS PAGE GOT YEETED</h1>
+			<p class="error-description">
+				Looks like this page was launched into the void.<br />
+				It either never existed or got deployed to /dev/null.
+			</p>
+
+			<div class="ascii-sad">¯\_(ツ)_/¯</div>
+
+			<div class="actions">
+				<a href="https://yeet.page" class="btn">← BACK TO HOME</a>
+				<a
+					href="https://github.com/torstenDittmann/yeet"
+					class="btn btn-secondary"
+					>VIEW ON GITHUB</a
+				>
+			</div>
+
+			<div class="suggestions">
+				<div class="suggestions-title">WHAT YOU CAN DO:</div>
+				<div class="suggestion">Check the URL for typos</div>
+				<div class="suggestion">Go back to the homepage</div>
+				<div class="suggestion">
+					Install YEET: npm install -g @dittmann/yeet
+				</div>
+				<div class="suggestion">Deploy your own site with: yeet</div>
+			</div>
+		</div>
+
+		<div class="footer">
+			<a href="https://github.com/torstenDittmann/yeet">GitHub</a> •
+			<a href="https://x.com/dittmanntorsten">Support</a>
+		</div>
+	</body>
+</html>

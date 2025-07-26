@@ -1,4 +1,4 @@
-import { S3Client, serve } from "bun";
+import { RedisClient, S3Client, serve } from "bun";
 import { join, normalize } from "node:path";
 import { randomBytes } from "node:crypto";
 import mime from "mime";
@@ -10,21 +10,49 @@ const {
 	S3_ACCESS_KEY_ID,
 	S3_ACCESS_KEY_SECRET,
 	S3_BUCKET,
+	REDIS_URL,
 	ORIGIN,
 } = process.env;
 
+const db = new RedisClient(REDIS_URL!);
 const client = new S3Client({
-	region: S3_REGION,
-	endpoint: S3_ENDPOINT,
-	accessKeyId: S3_ACCESS_KEY_ID,
-	secretAccessKey: S3_ACCESS_KEY_SECRET,
-	bucket: S3_BUCKET,
+	region: S3_REGION!,
+	endpoint: S3_ENDPOINT!,
+	accessKeyId: S3_ACCESS_KEY_ID!,
+	secretAccessKey: S3_ACCESS_KEY_SECRET!,
+	bucket: S3_BUCKET!,
 });
 
-const cache_headers = {
-	"Cache-Control": "public, max-age=31536000",
-	Expires: new Date(Date.now() + 31536000000).toUTCString(),
-};
+function get_cache_headers() {
+	return {
+		"Cache-Control": "public, max-age=31536000",
+		Expires: new Date(Date.now() + 31536000000).toUTCString(),
+	};
+}
+
+// Format bytes to human readable format
+function formatBytes(bytes: number): string {
+	if (bytes === 0) return '0 Bytes';
+	const k = 1024;
+	const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Format numbers with locale-aware abbreviations
+function formatNumber(num: number): string {
+	if (num < 1000) {
+		return new Intl.NumberFormat('en-US').format(num);
+	}
+	
+	const formatter = new Intl.NumberFormat('en-US', {
+		notation: 'compact',
+		compactDisplay: 'short',
+		maximumFractionDigits: 1
+	});
+	
+	return formatter.format(num);
+}
 
 // Generate a random domain name
 function generate_random_domain(): string {
@@ -129,11 +157,14 @@ const http = serve({
 							);
 							const array_buffer = await file.arrayBuffer();
 							const buffer = new Uint8Array(array_buffer);
-
-							console.log({ safe_relative_path, s3_path });
-							await client.file(s3_path).write(buffer);
+							const bytes = await client
+								.file(s3_path)
+								.write(buffer);
+							db.hincrby("stats", "bandwidth", bytes);
 						}),
 					);
+
+					db.hincrby("stats", "deployments", 1);
 
 					return Response.json(
 						{
@@ -174,8 +205,11 @@ const http = serve({
 				const is_subdomain =
 					normalized_hostname !== ORIGIN &&
 					normalized_hostname.endsWith(`.${ORIGIN}`);
+				db.hincrby("stats", "requests", 1);
 
+				console.log(await db.hgetall("stats"));
 				if (is_subdomain) {
+					db.hincrby("stats", "requests", 1);
 					// Prevent path traversal and normalize path
 					const safe_path = normalize(pathname);
 					const domain = normalized_hostname.replace(
@@ -193,10 +227,11 @@ const http = serve({
 					// Try exact file first
 					const file = client.file(file_path);
 					if (await file.exists()) {
+						db.hincrby("stats", "bandwidth", file.size);
 						return new Response(file.stream(), {
 							headers: {
 								"Content-Type": mime.getType(file_path)!,
-								...cache_headers,
+								...get_cache_headers(),
 							},
 						});
 					}
@@ -205,10 +240,11 @@ const http = serve({
 					if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
 						const html_file = client.file(file_path + ".html");
 						if (await html_file.exists()) {
+							db.hincrby("stats", "bandwidth", html_file.size);
 							return new Response(html_file.stream(), {
 								headers: {
 									"Content-Type": "text/html",
-									...cache_headers,
+									...get_cache_headers(),
 								},
 							});
 						}
@@ -218,10 +254,11 @@ const http = serve({
 							join(file_path, "index.html"),
 						);
 						if (await dir_index.exists()) {
+							db.hincrby("stats", "bandwidth", dir_index.size);
 							return new Response(dir_index.stream(), {
 								headers: {
 									"Content-Type": "text/html",
-									...cache_headers,
+									...get_cache_headers(),
 								},
 							});
 						}
@@ -232,11 +269,12 @@ const http = serve({
 						join(folder_path, "200.html"),
 					);
 					if (await fallback_file.exists()) {
+						db.hincrby("stats", "bandwidth", fallback_file.size);
 						return new Response(fallback_file.stream(), {
 							status: 404,
 							headers: {
 								"Content-Type": "text/html",
-								...cache_headers,
+								...get_cache_headers(),
 							},
 						});
 					}
@@ -245,8 +283,25 @@ const http = serve({
 				}
 
 				// Handle root domain - serve a simple landing page
-				return new Response(Bun.file("./index.html"), {
+				const website = await Bun.file("./index.html").text();
+				const stats: {
+					requests?: number | undefined;
+					bandwidth?: number | undefined;
+					deployments?: number | undefined;
+				} | null = await db.hgetall("stats");
+
+				
+				// Inject stats into HTML
+				const statsHtml = website
+					.replace('{{TOTAL_DEPLOYMENTS}}', formatNumber(stats?.deployments || 0))
+					.replace('{{TOTAL_REQUESTS}}', formatNumber(stats?.requests || 0))
+					.replace('{{TOTAL_BANDWIDTH}}', formatBytes(stats?.bandwidth || 0));
+				
+				return new Response(statsHtml, {
 					status: 200,
+					headers: {
+						"Content-Type": "text/html",
+					},
 				});
 			},
 		},

@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YEET - Deploy at Light Speed</title>
+    <title>YEET - Deploy Static Sites to the Cloud | Fast Preview Deployments</title>
+    <meta name="description" content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams.">
+    <meta name="keywords" content="static site deployment, preview deployment, fast hosting, developer tools, yeet, site hosting, web deployment">
+    <meta name="author" content="Torsten Dittmann">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yeet.site/">
+    <meta property="og:title" content="YEET - Deploy Static Sites to the Cloud">
+    <meta property="og:description" content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams.">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yeet.site/">
+    <meta property="twitter:title" content="YEET - Deploy Static Sites to the Cloud">
+    <meta property="twitter:description" content="Deploy your static sites for preview testing in under 1 second. Zero config, HTTPS by default, perfect for demos and sharing with teams.">
+    <meta property="twitter:creator" content="@dittmanntorsten">
+    
+    <!-- Additional SEO -->
+    <link rel="canonical" href="https://yeet.site/">
+    <meta name="theme-color" content="#bb88ff">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.bunny.net/css2?family=JetBrains+Mono:wght@400;700&display=swap');
         
         * {
             margin: 0;
@@ -137,6 +158,50 @@
             font-size: 12px;
         }
         
+        .stats-section {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .stats-title {
+            color: #bb88ff;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 20px;
+            background: #000;
+            border: 1px solid #444;
+            border-radius: 6px;
+        }
+        
+        .stat-number {
+            color: #bb88ff;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
         .success {
             color: #bb88ff;
         }
@@ -176,6 +241,11 @@
             .features {
                 grid-template-columns: 1fr;
                 gap: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
         }
         
@@ -266,10 +336,54 @@
             </div>
         </div>
         
+        <div class="stats-section">
+            <div class="stats-title">GLOBAL STATS</div>
+            <div class="stats-grid">
+                <div class="stat">
+                    <div class="stat-number">{{TOTAL_DEPLOYMENTS}}</div>
+                    <div class="stat-label">Total Deployments</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{TOTAL_REQUESTS}}</div>
+                    <div class="stat-label">Total Requests</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{TOTAL_BANDWIDTH}}</div>
+                    <div class="stat-label">Bandwidth Served</div>
+                </div>
+            </div>
+        </div>
+        
         <div class="footer">
             Built for developers who need fast preview deployments<br>
             <a href="https://github.com/torstenDittmann/yeet">GitHub</a> • <a href="https://x.com/dittmanntorsten">Support</a>
         </div>
     </div>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "YEET",
+        "description": "Deploy static sites for preview testing in under 1 second",
+        "url": "https://yeet.site",
+        "author": {
+            "@type": "Person",
+            "name": "Torsten Dittmann",
+            "url": "https://x.com/dittmanntorsten"
+        },
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Cross-platform",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "downloadUrl": "https://www.npmjs.com/package/@dittmann/yeet",
+        "softwareVersion": "latest",
+        "releaseNotes": "Fast static site deployment for previews and testing"
+    }
+    </script>
 </body>
 </html>

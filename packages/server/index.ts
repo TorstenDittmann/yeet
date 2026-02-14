@@ -12,7 +12,7 @@ const {
 	S3_BUCKET,
 	REDIS_URL,
 	ORIGIN,
-} = process.env;
+} = Bun.env;
 
 const db = new RedisClient(REDIS_URL!);
 const client = new S3Client({
@@ -154,7 +154,7 @@ const http = serve({
 
 							// Prevent path traversal and normalize path
 							const safe_relative_path = normalize(file.name);
-							const s3_path = join("yeet", domain, safe_relative_path);
+							const s3_path = join(domain, safe_relative_path);
 							const array_buffer = await file.arrayBuffer();
 							const buffer = new Uint8Array(array_buffer);
 							bytes += await client.file(s3_path).write(buffer);
@@ -209,8 +209,7 @@ const http = serve({
 					// Prevent path traversal and normalize path
 					const safe_path = normalize(pathname);
 					const domain = normalized_hostname.replace(`.${ORIGIN}`, "");
-					const folder_path = join("yeet", domain);
-					let file_path = join(folder_path, safe_path);
+					let file_path = join(domain, safe_path);
 
 					// Handle trailing slash
 					if (file_path.endsWith("/")) {
@@ -259,7 +258,7 @@ const http = serve({
 					}
 
 					// Serve 200.html if exists for client side routing with SPA
-					const fallback_file = client.file(join(folder_path, "200.html"));
+					const fallback_file = client.file(join(domain, "200.html"));
 					if (await fallback_file.exists()) {
 						report_bandwith_for_s3(fallback_file);
 

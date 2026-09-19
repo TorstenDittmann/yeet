@@ -4,11 +4,13 @@ Publish static sites instantly with a single command.
 
 ## Installation
 
+Requires **Node.js 20+** (the published CLI runs on Node).
+
 ```bash
 npm install -g @dittmann/yeet
 ```
 
-Or from this repo:
+Or from this repo (needs [Bun](https://bun.sh) to install/build):
 
 ```bash
 bun install
@@ -18,11 +20,13 @@ bun run build
 ## Usage
 
 ```bash
-# Publish current directory
+# Publish current directory (uploads every file in it)
 yeet
 
-# Publish a specific directory
-yeet ./my-website
+# Prefer pointing at your build output, not a full project root
+yeet ./out
+yeet ./build
+yeet ./dist
 
 # Publish with custom server
 yeet ./my-website --server https://my-yeet-server.com

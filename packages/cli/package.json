@@ -16,6 +16,9 @@
 		"build": "bun build index.ts --outdir dist --target node --minify",
 		"type-check": "tsc --noEmit"
 	},
+	"engines": {
+		"node": ">=20"
+	},
 	"dependencies": {
 		"chalk": "^5.0.0",
 		"citty": "^0.1.5",

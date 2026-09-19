@@ -1,7 +1,7 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { existsSync } from "node:fs";
-import { readdir, stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
 import chalk from "chalk";
 import { defineCommand, runMain } from "citty";
@@ -10,7 +10,7 @@ import { config as loadDotEnv } from "dotenv";
 const VERSION = "1.0.4";
 const DEFAULT_SERVER_URL = "https://yeet.page";
 
-loadDotEnv();
+loadDotEnv({ quiet: true });
 
 function getServerUrl(): string {
 	return (
@@ -30,7 +30,7 @@ const YEET_ASCII = `
 `;
 
 class LoadingSpinner {
-	private interval: Timer | null = null;
+	private interval: ReturnType<typeof setInterval> | null = null;
 	private frameIndex = 0;
 	private message: string;
 
@@ -148,10 +148,10 @@ async function publishSite(
 
 		for (const filePath of files) {
 			const relativePath = relative(sourcePath, filePath);
-			const file = Bun.file(filePath);
+			const bytes = await readFile(filePath);
 
-			const fileBlob = new File([await file.arrayBuffer()], relativePath, {
-				type: file.type || "application/octet-stream",
+			const fileBlob = new File([bytes], relativePath, {
+				type: "application/octet-stream",
 			});
 
 			formData.append("files", fileBlob);

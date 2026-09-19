@@ -21,11 +21,18 @@ const client = new S3Client({
 	bucket: S3_BUCKET!,
 });
 
-// Deployments are immutable (new subdomain per publish), so everything can be cached forever.
-function get_cache_headers() {
+// Deployments are immutable (new subdomain per publish), so deploy assets can be cached forever.
+function get_deploy_cache_headers() {
 	return {
 		"Cache-Control": "public, max-age=31536000, immutable",
 		Expires: new Date(Date.now() + 31536000000).toUTCString(),
+	};
+}
+
+// Apex landing / platform assets are mutable across releases.
+function get_apex_cache_headers() {
+	return {
+		"Cache-Control": "public, max-age=0, must-revalidate",
 	};
 }
 
@@ -80,12 +87,13 @@ function file_response(
 	body: ReadableStream | Blob,
 	content_type: string,
 	status = 200,
+	cache_headers: Record<string, string> = get_deploy_cache_headers(),
 ) {
 	return new Response(body, {
 		status,
 		headers: {
 			"Content-Type": content_type,
-			...get_cache_headers(),
+			...cache_headers,
 		},
 	});
 }
@@ -226,14 +234,19 @@ const http = serve({
 						status: 404,
 						headers: {
 							"Content-Type": "text/html",
-							...get_cache_headers(),
+							...get_apex_cache_headers(),
 						},
 					});
 				}
 
 				// Apex: OG image
 				if (pathname === "/og.png") {
-					return file_response(Bun.file("./og.png"), "image/png");
+					return file_response(
+						Bun.file("./og.png"),
+						"image/png",
+						200,
+						get_apex_cache_headers(),
+					);
 				}
 
 				// Apex: landing page
@@ -241,7 +254,7 @@ const http = serve({
 					status: 200,
 					headers: {
 						"Content-Type": "text/html",
-						...get_cache_headers(),
+						...get_apex_cache_headers(),
 					},
 				});
 			},
@@ -252,7 +265,7 @@ const http = serve({
 			status: 404,
 			headers: {
 				"Content-Type": "text/html",
-				...get_cache_headers(),
+				...get_apex_cache_headers(),
 			},
 		});
 	},

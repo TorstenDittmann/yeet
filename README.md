@@ -11,12 +11,16 @@ This project uses a monorepo with the following packages:
 - **`packages/server`** — Hosting server: accepts uploads, stores files in S3, serves sites on `*.{ORIGIN}` subdomains
 - **`packages/cli`** — Command-line tool that uploads a folder and prints a preview URL
 
+## Prerequisites
+
+- [Bun](https://bun.sh) — required to develop and build packages in this repo
+- Node.js 20+ — required to run the published `@dittmann/yeet` CLI
+
 ## Installation
 
 ```bash
-# From each package directory, or install deps where you work:
-cd packages/server && bun install
-cd packages/cli && bun install
+(cd packages/server && bun install)
+(cd packages/cli && bun install)
 ```
 
 ## Development
@@ -42,8 +46,8 @@ By default the CLI publishes to `https://yeet.page`. Override with `--server` or
 ## Building
 
 ```bash
-cd packages/server && bun run build
-cd packages/cli && bun run build
+(cd packages/server && bun run build)
+(cd packages/cli && bun run build)
 ```
 
 ## How it works

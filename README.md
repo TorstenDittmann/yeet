@@ -2,81 +2,63 @@
 
 A fast static site hosting platform with subdomain-based routing.
 
+Live product: [yeet.page](https://yeet.page) · CLI: [`@dittmann/yeet`](https://www.npmjs.com/package/@dittmann/yeet)
+
 ## Project Structure
 
-This project uses a workspace structure with the following packages:
+This project uses a monorepo with the following packages:
 
-- **`packages/server`** - The main hosting server that serves static files from subdomains
-- **`packages/cli`** - Command-line interface for managing deployments
+- **`packages/server`** — Hosting server: accepts uploads, stores files in S3, serves sites on `*.{ORIGIN}` subdomains
+- **`packages/cli`** — Command-line tool that uploads a folder and prints a preview URL
+
+## Prerequisites
+
+- [Bun](https://bun.sh) — required to develop and build packages in this repo
+- Node.js 20+ — required to run the published `@dittmann/yeet` CLI
 
 ## Installation
 
-Install dependencies for all workspaces:
-
 ```bash
-bun install
+(cd packages/server && bun install)
+(cd packages/cli && bun install)
 ```
 
 ## Development
 
 ### Server
 
-To run the server in development mode:
-
 ```bash
 cd packages/server
 bun run dev
 ```
 
-The server will start and listen for requests. Static files are served based on subdomain routing from the `data/` directory.
+Requires S3 env vars (`S3_REGION`, `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_ACCESS_KEY_SECRET`, `S3_BUCKET`) and `ORIGIN` (e.g. `yeet.page` or `localhost`).
 
 ### CLI
 
-To run the CLI in development mode:
-
 ```bash
 cd packages/cli
-bun run dev [command]
+bun run dev [directory]
 ```
+
+By default the CLI publishes to `https://yeet.page`. Override with `--server` or `YEET_SERVER_URL`.
 
 ## Building
 
-### Server
-
 ```bash
-cd packages/server
-bun run build
-```
-
-### CLI
-
-```bash
-cd packages/cli
-bun run build
+(cd packages/server && bun run build)
+(cd packages/cli && bun run build)
 ```
 
 ## How it works
 
-1. **Server**: Serves static files from the `data/` directory based on subdomain routing
-   - `example.localhost` serves files from `data/example/`
-   - Supports index.html fallback and SPA routing with 200.html
+1. **CLI** — Scans a directory and uploads files as `multipart/form-data` to `POST /publish` (skips `.env*` / `.DS_Store` / `Thumbs.db` only)
+2. **Server** — Stores files under a random `{adjective}-{noun}-{hex}/` prefix in S3 and returns `https://{subdomain}.{ORIGIN}`
+3. **Serving** — Requests to `{subdomain}.{ORIGIN}` resolve files from S3, with clean `.html` URLs, `index.html` fallback, and optional `200.html` for SPA client routing
 
-2. **CLI**: Manages deployments to the data directory
-   - Deploy sites to subdomains
-   - List, remove, and get info about deployed sites
+Each `yeet` creates a **new** random subdomain. There is no account system or deploy listing yet.
 
-## Data Directory
+## Deploy limits
 
-Static files are stored in the `data/` directory at the project root:
-
-```
-data/
-├── example.com/
-│   ├── index.html
-│   └── assets/
-└── another-site/
-    ├── index.html
-    └── 200.html
-```
-
-This project was created using `bun init` and uses [Bun](https://bun.sh) as the JavaScript runtime.
+- Max **50MB per file**
+- No accounts required

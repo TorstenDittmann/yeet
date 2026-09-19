@@ -48,7 +48,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 
 # Copy static files
-COPY index.html 404.html ./
+COPY index.html 404.html og.png ./
 
 # Expose port
 EXPOSE $PORT

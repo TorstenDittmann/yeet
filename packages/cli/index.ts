@@ -1,12 +1,16 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { existsSync } from "node:fs";
-import { readdir, stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
 import chalk from "chalk";
 import { defineCommand, runMain } from "citty";
+import { config as loadDotEnv } from "dotenv";
 
+const VERSION = "1.0.4";
 const DEFAULT_SERVER_URL = "https://yeet.page";
+
+loadDotEnv({ quiet: true });
 
 function getServerUrl(): string {
 	return (
@@ -26,7 +30,7 @@ const YEET_ASCII = `
 `;
 
 class LoadingSpinner {
-	private interval: Timer | null = null;
+	private interval: ReturnType<typeof setInterval> | null = null;
 	private frameIndex = 0;
 	private message: string;
 
@@ -74,42 +78,25 @@ async function getAllFiles(dir: string): Promise<string[]> {
 			const stats = await stat(fullPath);
 
 			if (stats.isDirectory()) {
-				// Skip common directories that shouldn't be deployed
-				if (
-					[
-						".git",
-						"node_modules",
-						".next",
-						"dist",
-						"build",
-						".vercel",
-						".netlify",
-						".DS_Store",
-					].includes(entry)
-				) {
-					continue;
-				}
 				await walk(fullPath);
-			} else {
-				// Skip common files that shouldn't be deployed
-				if (
-					![
-						".DS_Store",
-						".gitignore",
-						".env",
-						".env.local",
-						".env.production",
-						"Thumbs.db",
-					].includes(entry)
-				) {
-					files.push(fullPath);
-				}
+			} else if (!shouldSkipFile(entry)) {
+				files.push(fullPath);
 			}
 		}
 	}
 
 	await walk(dir);
 	return files;
+}
+
+function shouldSkipFile(name: string): boolean {
+	const lower = name.toLowerCase();
+	return (
+		lower === ".ds_store" ||
+		lower === "thumbs.db" ||
+		lower === ".env" ||
+		lower.startsWith(".env.")
+	);
 }
 
 function formatFileSize(bytes: number): string {
@@ -171,10 +158,10 @@ async function publishSite(
 
 		for (const filePath of files) {
 			const relativePath = relative(sourcePath, filePath);
-			const file = Bun.file(filePath);
+			const bytes = await readFile(filePath);
 
-			const fileBlob = new File([await file.arrayBuffer()], relativePath, {
-				type: file.type || "application/octet-stream",
+			const fileBlob = new File([bytes], relativePath, {
+				type: "application/octet-stream",
 			});
 
 			formData.append("files", fileBlob);
@@ -183,7 +170,18 @@ async function publishSite(
 		prepSpinner.success(`Prepared ${files.length} files for upload`);
 
 		// Simple ASCII spinner
-		const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+		const uploadSpinnerFrames = [
+			"⠋",
+			"⠙",
+			"⠹",
+			"⠸",
+			"⠼",
+			"⠴",
+			"⠦",
+			"⠧",
+			"⠇",
+			"⠏",
+		];
 		let frameIndex = 0;
 		let uploadComplete = false;
 
@@ -193,9 +191,9 @@ async function publishSite(
 		const spinnerInterval = setInterval(() => {
 			if (!uploadComplete) {
 				process.stdout.write(
-					`\r${chalk.cyan(spinnerFrames[frameIndex])} Uploading files...`,
+					`\r${chalk.cyan(uploadSpinnerFrames[frameIndex])} Uploading files...`,
 				);
-				frameIndex = (frameIndex + 1) % spinnerFrames.length;
+				frameIndex = (frameIndex + 1) % uploadSpinnerFrames.length;
 			}
 		}, 80);
 
@@ -283,7 +281,7 @@ const main = defineCommand({
 		name: "yeet",
 		description:
 			"Publish static sites instantly ⚡\n\nConfiguration:\n  Create a .env file to set YEET_SERVER_URL or SERVER_URL",
-		version: "1.0.0",
+		version: VERSION,
 	},
 	args: {
 		directory: {

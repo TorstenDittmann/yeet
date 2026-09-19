@@ -1,7 +1,7 @@
 import type { File } from "node:buffer";
 import { randomBytes } from "node:crypto";
 import { join, normalize } from "node:path";
-import { RedisClient, S3Client, serve } from "bun";
+import { S3Client, serve } from "bun";
 import mime from "mime";
 
 const {
@@ -10,11 +10,9 @@ const {
 	S3_ACCESS_KEY_ID,
 	S3_ACCESS_KEY_SECRET,
 	S3_BUCKET,
-	REDIS_URL,
 	ORIGIN,
 } = Bun.env;
 
-const db = new RedisClient(REDIS_URL!);
 const client = new S3Client({
 	region: S3_REGION!,
 	endpoint: S3_ENDPOINT!,
@@ -28,21 +26,6 @@ function get_cache_headers() {
 		"Cache-Control": "public, max-age=31536000",
 		Expires: new Date(Date.now() + 31536000000).toUTCString(),
 	};
-}
-
-// Format numbers with locale-aware abbreviations
-function formatNumber(num: number): string {
-	if (num < 1000) {
-		return new Intl.NumberFormat("en-US").format(num);
-	}
-
-	const formatter = new Intl.NumberFormat("en-US", {
-		notation: "compact",
-		compactDisplay: "short",
-		maximumFractionDigits: 1,
-	});
-
-	return formatter.format(num);
 }
 
 // Generate a random domain name
@@ -146,8 +129,6 @@ const http = serve({
 						}),
 					);
 
-					db.hincrby("stats", "deployments", 1);
-
 					return Response.json(
 						{
 							domain: `${domain}.${ORIGIN}`,
@@ -189,7 +170,6 @@ const http = serve({
 					normalized_hostname.endsWith(`.${ORIGIN}`);
 
 				if (is_subdomain) {
-					db.hincrby("stats", "requests", 1);
 					// Prevent path traversal and normalize path
 					const safe_path = normalize(pathname);
 					const domain = normalized_hostname.replace(`.${ORIGIN}`, "");
@@ -253,21 +233,7 @@ const http = serve({
 				}
 
 				// Handle root domain - serve a simple landing page
-				const website = await Bun.file("./index.html").text();
-				const stats: {
-					requests?: number | undefined;
-					deployments?: number | undefined;
-				} | null = await db.hgetall("stats");
-
-				// Inject stats into HTML
-				const statsHtml = website
-					.replace(
-						"{{TOTAL_DEPLOYMENTS}}",
-						formatNumber(stats?.deployments || 0),
-					)
-					.replace("{{TOTAL_REQUESTS}}", formatNumber(stats?.requests || 0));
-
-				return new Response(statsHtml, {
+				return new Response(Bun.file("./index.html"), {
 					status: 200,
 					headers: {
 						"Content-Type": "text/html",

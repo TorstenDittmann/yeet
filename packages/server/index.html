@@ -178,50 +178,6 @@
 				font-size: 12px;
 			}
 
-			.stats-section {
-				background: #111;
-				border: 1px solid #333;
-				border-radius: 8px;
-				padding: 30px;
-				margin-bottom: 40px;
-			}
-
-			.stats-title {
-				color: #bb88ff;
-				font-size: 18px;
-				font-weight: 700;
-				margin-bottom: 20px;
-				text-align: center;
-			}
-
-			.stats-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-				gap: 20px;
-			}
-
-			.stat {
-				text-align: center;
-				padding: 20px;
-				background: #000;
-				border: 1px solid #444;
-				border-radius: 6px;
-			}
-
-			.stat-number {
-				color: #bb88ff;
-				font-size: 24px;
-				font-weight: 700;
-				margin-bottom: 8px;
-			}
-
-			.stat-label {
-				color: #888;
-				font-size: 12px;
-				text-transform: uppercase;
-				letter-spacing: 1px;
-			}
-
 			.success {
 				color: #bb88ff;
 			}
@@ -261,11 +217,6 @@
 				.features {
 					grid-template-columns: 1fr;
 					gap: 20px;
-				}
-
-				.stats-grid {
-					grid-template-columns: 1fr;
-					gap: 15px;
 				}
 			}
 
@@ -379,20 +330,6 @@
 					📊 <span class="highlight">47 files</span> deployed in
 					<span class="highlight">0.8s</span><br />
 					📋 Share this preview URL with your team!
-				</div>
-			</div>
-
-			<div class="stats-section">
-				<div class="stats-title">GLOBAL STATS</div>
-				<div class="stats-grid">
-					<div class="stat">
-						<div class="stat-number">{{TOTAL_DEPLOYMENTS}}</div>
-						<div class="stat-label">Total Deployments</div>
-					</div>
-					<div class="stat">
-						<div class="stat-number">{{TOTAL_REQUESTS}}</div>
-						<div class="stat-label">Total Requests</div>
-					</div>
 				</div>
 			</div>
 

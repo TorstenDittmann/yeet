@@ -79,7 +79,7 @@ async function getAllFiles(dir: string): Promise<string[]> {
 
 			if (stats.isDirectory()) {
 				await walk(fullPath);
-			} else {
+			} else if (!shouldSkipFile(entry)) {
 				files.push(fullPath);
 			}
 		}
@@ -87,6 +87,16 @@ async function getAllFiles(dir: string): Promise<string[]> {
 
 	await walk(dir);
 	return files;
+}
+
+function shouldSkipFile(name: string): boolean {
+	const lower = name.toLowerCase();
+	return (
+		lower === ".ds_store" ||
+		lower === "thumbs.db" ||
+		lower === ".env" ||
+		lower.startsWith(".env.")
+	);
 }
 
 function formatFileSize(bytes: number): string {

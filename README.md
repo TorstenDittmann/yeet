@@ -52,7 +52,7 @@ By default the CLI publishes to `https://yeet.page`. Override with `--server` or
 
 ## How it works
 
-1. **CLI** — Scans a directory and uploads every file as `multipart/form-data` to `POST /publish`
+1. **CLI** — Scans a directory and uploads files as `multipart/form-data` to `POST /publish` (skips `.env*` / `.DS_Store` / `Thumbs.db` only)
 2. **Server** — Stores files under a random `{adjective}-{noun}-{hex}/` prefix in S3 and returns `https://{subdomain}.{ORIGIN}`
 3. **Serving** — Requests to `{subdomain}.{ORIGIN}` resolve files from S3, with clean `.html` URLs, `index.html` fallback, and optional `200.html` for SPA client routing
 

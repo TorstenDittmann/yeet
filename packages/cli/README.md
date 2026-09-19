@@ -20,7 +20,7 @@ bun run build
 ## Usage
 
 ```bash
-# Publish current directory (uploads every file in it)
+# Publish current directory (includes all folders; skips .env* / .DS_Store)
 yeet
 
 # Prefer pointing at your build output, not a full project root
@@ -71,11 +71,20 @@ yeet ./dist --server https://yeet.mycompany.com
 ## Features
 
 - Instant deployment — upload and get a preview URL in seconds
-- Upload as-is — everything in the target directory is published
+- Upload as-is — every folder in the target directory is included
+- Skips secret/junk files — `.env*`, `.DS_Store`, `Thumbs.db`
 - Terminal progress — spinner + YEET ASCII art
 - Random domains — unique subdomain per deployment
 - Zero configuration — works out of the box against yeet.page
 - Flexible setup — configure via `.env`, env vars, or `--server`
+
+## File Filtering
+
+No directories are skipped. Only these files are excluded:
+
+- `.env`, `.env.*` (e.g. `.env.local`, `.env.production`)
+- `.DS_Store`
+- `Thumbs.db`
 
 ## Development
 
@@ -149,6 +158,7 @@ curl https://yeet.page
 1. Check file permissions in the source directory
 2. Ensure no single file exceeds 50MB
 3. Point `yeet` at the folder you actually want published (e.g. `./out`, not the project root)
+4. Note that `.env*`, `.DS_Store`, and `Thumbs.db` are always skipped
 
 ### Environment Variables Not Loading
 

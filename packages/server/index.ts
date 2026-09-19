@@ -1,7 +1,7 @@
 import type { File } from "node:buffer";
 import { randomBytes } from "node:crypto";
 import { join, normalize } from "node:path";
-import { RedisClient, S3Client, type S3File, serve } from "bun";
+import { RedisClient, S3Client, serve } from "bun";
 import mime from "mime";
 
 const {
@@ -28,20 +28,6 @@ function get_cache_headers() {
 		"Cache-Control": "public, max-age=31536000",
 		Expires: new Date(Date.now() + 31536000000).toUTCString(),
 	};
-}
-
-async function report_bandwith_for_s3(file: S3File) {
-	const stat = await file.stat();
-	db.hincrby("stats", "bandwidth", stat.size);
-}
-
-// Format bytes to human readable format
-function formatBytes(bytes: number): string {
-	if (bytes === 0) return "0 Bytes";
-	const k = 1024;
-	const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
 // Format numbers with locale-aware abbreviations
@@ -138,7 +124,6 @@ const http = serve({
 					const files = file_entries.filter(
 						(file): file is File => typeof file !== "string" && !!file.name,
 					);
-					let bytes = 0;
 					// Process all files concurrently
 					await Promise.all(
 						files.map(async (file) => {
@@ -157,11 +142,10 @@ const http = serve({
 							const s3_path = join(domain, safe_relative_path);
 							const array_buffer = await file.arrayBuffer();
 							const buffer = new Uint8Array(array_buffer);
-							bytes += await client.file(s3_path).write(buffer);
+							await client.file(s3_path).write(buffer);
 						}),
 					);
 
-					db.hincrby("stats", "bandwidth", bytes);
 					db.hincrby("stats", "deployments", 1);
 
 					return Response.json(
@@ -219,8 +203,6 @@ const http = serve({
 					// Try exact file first
 					const file = client.file(file_path);
 					if (await file.exists()) {
-						report_bandwith_for_s3(file);
-
 						return new Response(file.stream(), {
 							headers: {
 								"Content-Type": mime.getType(file_path)!,
@@ -233,8 +215,6 @@ const http = serve({
 					if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
 						const html_file = client.file(`${file_path}.html`);
 						if (await html_file.exists()) {
-							report_bandwith_for_s3(html_file);
-
 							return new Response(html_file.stream(), {
 								headers: {
 									"Content-Type": "text/html",
@@ -246,8 +226,6 @@ const http = serve({
 						// Also try as directory with index.html
 						const dir_index = client.file(join(file_path, "index.html"));
 						if (await dir_index.exists()) {
-							report_bandwith_for_s3(dir_index);
-
 							return new Response(dir_index.stream(), {
 								headers: {
 									"Content-Type": "text/html",
@@ -260,8 +238,6 @@ const http = serve({
 					// Serve 200.html if exists for client side routing with SPA
 					const fallback_file = client.file(join(domain, "200.html"));
 					if (await fallback_file.exists()) {
-						report_bandwith_for_s3(fallback_file);
-
 						return new Response(fallback_file.stream(), {
 							status: 404,
 							headers: {
@@ -280,7 +256,6 @@ const http = serve({
 				const website = await Bun.file("./index.html").text();
 				const stats: {
 					requests?: number | undefined;
-					bandwidth?: number | undefined;
 					deployments?: number | undefined;
 				} | null = await db.hgetall("stats");
 
@@ -290,8 +265,7 @@ const http = serve({
 						"{{TOTAL_DEPLOYMENTS}}",
 						formatNumber(stats?.deployments || 0),
 					)
-					.replace("{{TOTAL_REQUESTS}}", formatNumber(stats?.requests || 0))
-					.replace("{{TOTAL_BANDWIDTH}}", formatBytes(stats?.bandwidth || 0));
+					.replace("{{TOTAL_REQUESTS}}", formatNumber(stats?.requests || 0));
 
 				return new Response(statsHtml, {
 					status: 200,

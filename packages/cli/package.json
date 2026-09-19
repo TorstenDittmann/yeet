@@ -17,8 +17,9 @@
 		"type-check": "tsc --noEmit"
 	},
 	"dependencies": {
+		"chalk": "^5.0.0",
 		"citty": "^0.1.5",
-		"chalk": "^5.0.0"
+		"dotenv": "^18.0.1"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",

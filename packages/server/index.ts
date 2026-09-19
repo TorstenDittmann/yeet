@@ -21,14 +21,8 @@ const client = new S3Client({
 	bucket: S3_BUCKET!,
 });
 
-const HTML_CACHE_HEADERS = {
-	"Cache-Control": "public, max-age=0, must-revalidate",
-};
-
-function get_cache_headers(content_type: string | null) {
-	if (content_type?.startsWith("text/html")) {
-		return HTML_CACHE_HEADERS;
-	}
+// Deployments are immutable (new subdomain per publish), so everything can be cached forever.
+function get_cache_headers() {
 	return {
 		"Cache-Control": "public, max-age=31536000, immutable",
 		Expires: new Date(Date.now() + 31536000000).toUTCString(),
@@ -91,7 +85,7 @@ function file_response(
 		status,
 		headers: {
 			"Content-Type": content_type,
-			...get_cache_headers(content_type),
+			...get_cache_headers(),
 		},
 	});
 }
@@ -232,7 +226,7 @@ const http = serve({
 						status: 404,
 						headers: {
 							"Content-Type": "text/html",
-							...HTML_CACHE_HEADERS,
+							...get_cache_headers(),
 						},
 					});
 				}
@@ -247,7 +241,7 @@ const http = serve({
 					status: 200,
 					headers: {
 						"Content-Type": "text/html",
-						...HTML_CACHE_HEADERS,
+						...get_cache_headers(),
 					},
 				});
 			},
@@ -258,7 +252,7 @@ const http = serve({
 			status: 404,
 			headers: {
 				"Content-Type": "text/html",
-				...HTML_CACHE_HEADERS,
+				...get_cache_headers(),
 			},
 		});
 	},

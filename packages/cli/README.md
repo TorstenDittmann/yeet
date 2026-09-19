@@ -75,7 +75,17 @@ yeet ./dist --server https://yeet.mycompany.com
 
 ## File Filtering
 
-**Excluded directories:** `.git`, `node_modules`, `.next`, `dist`, `build`, `.vercel`, `.netlify`, `.DS_Store`
+The CLI automatically excludes common files and directories that shouldn't be deployed:
+
+**Excluded directories:**
+- `.git`
+- `node_modules`
+- `.next`
+- `dist` (when nested inside the publish root — `yeet ./dist` still works)
+- `build` (when nested inside the publish root — `yeet ./build` still works)
+- `.vercel`
+- `.netlify`
+- `.DS_Store`
 
 **Excluded files:** `.DS_Store`, `.gitignore`, `.env*`, `Thumbs.db`
 

@@ -67,27 +67,11 @@ yeet ./dist --server https://yeet.mycompany.com
 ## Features
 
 - Instant deployment — upload and get a preview URL in seconds
-- Smart file detection — excludes common build artifacts and secrets
+- Upload as-is — everything in the target directory is published
 - Terminal progress — spinner + YEET ASCII art
 - Random domains — unique subdomain per deployment
 - Zero configuration — works out of the box against yeet.page
 - Flexible setup — configure via `.env`, env vars, or `--server`
-
-## File Filtering
-
-The CLI automatically excludes common files and directories that shouldn't be deployed:
-
-**Excluded directories:**
-- `.git`
-- `node_modules`
-- `.next`
-- `dist` (when nested inside the publish root — `yeet ./dist` still works)
-- `build` (when nested inside the publish root — `yeet ./build` still works)
-- `.vercel`
-- `.netlify`
-- `.DS_Store`
-
-**Excluded files:** `.DS_Store`, `.gitignore`, `.env*`, `Thumbs.db`
 
 ## Development
 
@@ -160,7 +144,7 @@ curl https://yeet.page
 
 1. Check file permissions in the source directory
 2. Ensure no single file exceeds 50MB
-3. Verify files aren't filtered out (see File Filtering)
+3. Point `yeet` at the folder you actually want published (e.g. `./out`, not the project root)
 
 ### Environment Variables Not Loading
 

@@ -78,36 +78,9 @@ async function getAllFiles(dir: string): Promise<string[]> {
 			const stats = await stat(fullPath);
 
 			if (stats.isDirectory()) {
-				// Skip common directories that shouldn't be deployed
-				if (
-					[
-						".git",
-						"node_modules",
-						".next",
-						"dist",
-						"build",
-						".vercel",
-						".netlify",
-						".DS_Store",
-					].includes(entry)
-				) {
-					continue;
-				}
 				await walk(fullPath);
 			} else {
-				// Skip common files that shouldn't be deployed
-				if (
-					![
-						".DS_Store",
-						".gitignore",
-						".env",
-						".env.local",
-						".env.production",
-						"Thumbs.db",
-					].includes(entry)
-				) {
-					files.push(fullPath);
-				}
+				files.push(fullPath);
 			}
 		}
 	}

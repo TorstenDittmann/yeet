@@ -1,20 +1,21 @@
 # Yeet CLI
 
-Publish static sites instantly with a single command! ⚡
+Publish static sites instantly with a single command.
 
 ## Installation
 
 ```bash
-# Install dependencies
-bun install
+npm install -g @dittmann/yeet
+```
 
-# Build the CLI (creates bundled JS file)
+Or from this repo:
+
+```bash
+bun install
 bun run build
 ```
 
 ## Usage
-
-### Basic Usage
 
 ```bash
 # Publish current directory
@@ -29,21 +30,23 @@ yeet ./my-website --server https://my-yeet-server.com
 
 ### Configuration
 
-Create a `.env` file in the CLI directory to configure the default server:
+Set the server URL via environment variables or a `.env` file in the current working directory:
 
 ```bash
 # .env
 YEET_SERVER_URL=http://localhost:3000
 
-# Alternative variable name (YEET_SERVER_URL takes precedence)
+# Alternative (YEET_SERVER_URL takes precedence)
 SERVER_URL=http://localhost:3000
 ```
 
-Copy `.env.example` to get started:
+Copy `.env.example` for a starting point:
 
 ```bash
 cp .env.example .env
 ```
+
+Default when unset: `https://yeet.page`
 
 ### Examples
 
@@ -63,49 +66,26 @@ yeet ./dist --server https://yeet.mycompany.com
 
 ## Features
 
-- 🚀 **Instant deployment** - Upload and deploy in seconds
-- 📦 **Smart file detection** - Automatically excludes common build artifacts
-- 🎨 **Beautiful animations** - Satisfying terminal experience with progress indicators
-- 🌐 **Random domains** - Get a unique subdomain for each deployment
-- ⚡ **Zero configuration** - Works out of the box
-- 🔧 **Flexible setup** - Configure via .env file or command line options
+- Instant deployment — upload and get a preview URL in seconds
+- Smart file detection — excludes common build artifacts and secrets
+- Terminal progress — spinner + YEET ASCII art
+- Random domains — unique subdomain per deployment
+- Zero configuration — works out of the box against yeet.page
+- Flexible setup — configure via `.env`, env vars, or `--server`
 
 ## File Filtering
 
-The CLI automatically excludes common files and directories that shouldn't be deployed:
+**Excluded directories:** `.git`, `node_modules`, `.next`, `dist`, `build`, `.vercel`, `.netlify`, `.DS_Store`
 
-**Excluded directories:**
-- `.git`
-- `node_modules`
-- `.next`
-- `dist` (when not the target)
-- `build` (when not the target)
-- `.vercel`
-- `.netlify`
-- `.DS_Store`
-
-**Excluded files:**
-- `.DS_Store`
-- `.gitignore`
-- `.env*` files
-- `Thumbs.db`
+**Excluded files:** `.DS_Store`, `.gitignore`, `.env*`, `Thumbs.db`
 
 ## Development
 
 ```bash
-# Run in development mode
 bun run dev
-
-# Run with arguments
 bun run dev ./test-site
-
-# Type check
 bun run type-check
-
-# Build for production (creates dist/index.js)
 bun run build
-
-# Run the built version with Node.js
 node dist/index.js
 ```
 
@@ -113,8 +93,8 @@ node dist/index.js
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `YEET_SERVER_URL` | Primary server URL for publishing | `http://localhost:3000` |
-| `SERVER_URL` | Alternative server URL (lower priority) | `http://localhost:3000` |
+| `YEET_SERVER_URL` | Primary server URL for publishing | `https://yeet.page` |
+| `SERVER_URL` | Alternative server URL (lower priority) | `https://yeet.page` |
 
 ## CLI Options
 
@@ -132,53 +112,55 @@ OPTIONS
 
 ## Server Integration
 
-This CLI works with the Yeet server package. Make sure you have a Yeet server running that accepts POST requests to `/publish` with `multipart/form-data` containing files.
+This CLI works with the Yeet server. The server accepts `POST /publish` with `multipart/form-data` field `files`.
 
-The server should respond with:
+Successful response (`201`):
+
 ```json
 {
-  "success": true,
-  "domain": "generated-domain",
-  "url": "https://generated-domain.yourdomain.com",
-  "total_files": 5,
-  "message": "Site successfully deployed"
+  "domain": "fast-dog-16c8.yeet.page",
+  "url": "https://fast-dog-16c8.yeet.page",
+  "total_files": 5
 }
 ```
+
+Error response (`400` / `500`):
+
+```json
+{
+  "error": "File example.bin exceeds 50MB limit"
+}
+```
+
+Per-file upload limit on the server: **50MB**.
 
 ## Troubleshooting
 
 ### Server Connection Issues
 
-If you see connection errors:
-
-1. Make sure the Yeet server is running
-2. Check your `.env` file for the correct server URL
-3. Verify the server is accessible from your network
+1. Make sure the Yeet server is running (for self-hosted)
+2. Check `YEET_SERVER_URL` / `.env` / `--server`
+3. Verify the server is reachable
 
 ```bash
-# Test server connectivity
-curl http://localhost:3000
+curl https://yeet.page
 ```
 
 ### File Upload Issues
 
-If files aren't uploading correctly:
-
-1. Check file permissions in your source directory
-2. Ensure you have enough disk space
-3. Verify the files aren't being filtered out (see File Filtering section)
+1. Check file permissions in the source directory
+2. Ensure no single file exceeds 50MB
+3. Verify files aren't filtered out (see File Filtering)
 
 ### Environment Variables Not Loading
 
-Make sure your `.env` file is in the CLI package directory (`packages/cli/.env`) and follows the correct format:
+Put `.env` in the directory you run `yeet` from (usually your project root):
 
 ```bash
-# Correct
 YEET_SERVER_URL=http://localhost:3000
-
-# Incorrect (spaces around =)
-YEET_SERVER_URL = http://localhost:3000
 ```
+
+No spaces around `=`.
 
 ## License
 

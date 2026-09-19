@@ -21,9 +21,16 @@ const client = new S3Client({
 	bucket: S3_BUCKET!,
 });
 
-function get_cache_headers() {
+const HTML_CACHE_HEADERS = {
+	"Cache-Control": "public, max-age=0, must-revalidate",
+};
+
+function get_cache_headers(content_type: string | null) {
+	if (content_type?.startsWith("text/html")) {
+		return HTML_CACHE_HEADERS;
+	}
 	return {
-		"Cache-Control": "public, max-age=31536000",
+		"Cache-Control": "public, max-age=31536000, immutable",
 		Expires: new Date(Date.now() + 31536000000).toUTCString(),
 	};
 }
@@ -49,7 +56,6 @@ function generate_random_domain(): string {
 		"insightful",
 		"knowledgeable",
 		"learned",
-		"smart",
 		"wise",
 	];
 	const nouns = [
@@ -74,6 +80,20 @@ function generate_random_domain(): string {
 	const suffix = randomBytes(2).toString("hex");
 
 	return `${adjective}-${noun}-${suffix}`;
+}
+
+function file_response(
+	body: ReadableStream | Blob,
+	content_type: string,
+	status = 200,
+) {
+	return new Response(body, {
+		status,
+		headers: {
+			"Content-Type": content_type,
+			...get_cache_headers(content_type),
+		},
+	});
 }
 
 const http = serve({
@@ -183,67 +203,64 @@ const http = serve({
 					// Try exact file first
 					const file = client.file(file_path);
 					if (await file.exists()) {
-						return new Response(file.stream(), {
-							headers: {
-								"Content-Type": mime.getType(file_path)!,
-								...get_cache_headers(),
-							},
-						});
+						const content_type =
+							mime.getType(file_path) || "application/octet-stream";
+						return file_response(file.stream(), content_type);
 					}
 
 					// For extensionless paths, try .html (for clean URLs)
 					if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
 						const html_file = client.file(`${file_path}.html`);
 						if (await html_file.exists()) {
-							return new Response(html_file.stream(), {
-								headers: {
-									"Content-Type": "text/html",
-									...get_cache_headers(),
-								},
-							});
+							return file_response(html_file.stream(), "text/html");
 						}
 
 						// Also try as directory with index.html
 						const dir_index = client.file(join(file_path, "index.html"));
 						if (await dir_index.exists()) {
-							return new Response(dir_index.stream(), {
-								headers: {
-									"Content-Type": "text/html",
-									...get_cache_headers(),
-								},
-							});
+							return file_response(dir_index.stream(), "text/html");
 						}
 					}
 
-					// Serve 200.html if exists for client side routing with SPA
+					// Serve 200.html if exists for client-side SPA routing
 					const fallback_file = client.file(join(domain, "200.html"));
 					if (await fallback_file.exists()) {
-						return new Response(fallback_file.stream(), {
-							status: 404,
-							headers: {
-								"Content-Type": "text/html",
-								...get_cache_headers(),
-							},
-						});
+						return file_response(fallback_file.stream(), "text/html", 200);
 					}
 
 					return new Response(Bun.file("./404.html"), {
 						status: 404,
+						headers: {
+							"Content-Type": "text/html",
+							...HTML_CACHE_HEADERS,
+						},
 					});
 				}
 
-				// Handle root domain - serve a simple landing page
+				// Apex: OG image
+				if (pathname === "/og.png") {
+					return file_response(Bun.file("./og.png"), "image/png");
+				}
+
+				// Apex: landing page
 				return new Response(Bun.file("./index.html"), {
 					status: 200,
 					headers: {
 						"Content-Type": "text/html",
+						...HTML_CACHE_HEADERS,
 					},
 				});
 			},
 		},
 	},
 	fetch() {
-		return new Response(Bun.file("./404.html"), { status: 404 });
+		return new Response(Bun.file("./404.html"), {
+			status: 404,
+			headers: {
+				"Content-Type": "text/html",
+				...HTML_CACHE_HEADERS,
+			},
+		});
 	},
 });
 

@@ -4,25 +4,18 @@ import { join, normalize } from "node:path";
 import { S3Client, serve } from "bun";
 import mime from "mime";
 
-const {
-	S3_REGION,
-	S3_ENDPOINT,
-	S3_ACCESS_KEY_ID,
-	S3_ACCESS_KEY_SECRET,
-	S3_BUCKET,
-	ORIGIN,
-} = Bun.env;
+export type StorageFile = {
+	exists(): Promise<boolean>;
+	stream(): ReadableStream | Blob;
+	write(data: Uint8Array): Promise<unknown>;
+};
 
-const client = new S3Client({
-	region: S3_REGION!,
-	endpoint: S3_ENDPOINT!,
-	accessKeyId: S3_ACCESS_KEY_ID!,
-	secretAccessKey: S3_ACCESS_KEY_SECRET!,
-	bucket: S3_BUCKET!,
-});
+export type Storage = {
+	file(path: string): StorageFile;
+};
 
 // Deployments are immutable (new subdomain per publish), so deploy assets can be cached forever.
-function get_deploy_cache_headers() {
+export function get_deploy_cache_headers() {
 	return {
 		"Cache-Control": "public, max-age=31536000, immutable",
 		Expires: new Date(Date.now() + 31536000000).toUTCString(),
@@ -30,14 +23,14 @@ function get_deploy_cache_headers() {
 }
 
 // Apex landing / platform assets are mutable across releases.
-function get_apex_cache_headers() {
+export function get_apex_cache_headers() {
 	return {
 		"Cache-Control": "public, max-age=0, must-revalidate",
 	};
 }
 
 // Generate a random domain name
-function generate_random_domain(): string {
+export function generate_random_domain(): string {
 	const adjectives = [
 		"fast",
 		"quick",
@@ -83,7 +76,7 @@ function generate_random_domain(): string {
 	return `${adjective}-${noun}-${suffix}`;
 }
 
-function file_response(
+export function file_response(
 	body: ReadableStream | Blob,
 	content_type: string,
 	status = 200,
@@ -98,10 +91,21 @@ function file_response(
 	});
 }
 
-const http = serve({
-	routes: {
+export type ServerOptions = {
+	storage: Storage;
+	origin: string;
+	platform404: Blob;
+	platformIndex: Blob;
+	platformOg?: Blob;
+	port?: number;
+};
+
+export function create_routes(options: ServerOptions) {
+	const { storage, origin, platform404, platformIndex, platformOg } = options;
+
+	return {
 		"/publish": {
-			POST: async (req) => {
+			POST: async (req: Request) => {
 				const content_type = req.headers.get("content-type");
 
 				if (!content_type?.includes("multipart/form-data")) {
@@ -147,14 +151,14 @@ const http = serve({
 							const s3_path = join(domain, safe_relative_path);
 							const array_buffer = await file.arrayBuffer();
 							const buffer = new Uint8Array(array_buffer);
-							await client.file(s3_path).write(buffer);
+							await storage.file(s3_path).write(buffer);
 						}),
 					);
 
 					return Response.json(
 						{
-							domain: `${domain}.${ORIGIN}`,
-							url: `https://${domain}.${ORIGIN}`,
+							domain: `${domain}.${origin}`,
+							url: `https://${domain}.${origin}`,
 							total_files: files.length,
 						},
 						{ status: 201 },
@@ -181,20 +185,20 @@ const http = serve({
 			},
 		},
 		"/*": {
-			GET: async (req) => {
+			GET: async (req: Request) => {
 				const { hostname, pathname } = new URL(req.url);
 
 				// Normalize hostname to lowercase
 				const normalized_hostname = hostname.toLowerCase();
 				// Check if it's a subdomain based on configured domain
 				const is_subdomain =
-					normalized_hostname !== ORIGIN &&
-					normalized_hostname.endsWith(`.${ORIGIN}`);
+					normalized_hostname !== origin &&
+					normalized_hostname.endsWith(`.${origin}`);
 
 				if (is_subdomain) {
 					// Prevent path traversal and normalize path
 					const safe_path = normalize(pathname);
-					const domain = normalized_hostname.replace(`.${ORIGIN}`, "");
+					const domain = normalized_hostname.replace(`.${origin}`, "");
 					let file_path = join(domain, safe_path);
 
 					// Handle trailing slash
@@ -203,7 +207,7 @@ const http = serve({
 					}
 
 					// Try exact file first
-					const file = client.file(file_path);
+					const file = storage.file(file_path);
 					if (await file.exists()) {
 						const content_type =
 							mime.getType(file_path) || "application/octet-stream";
@@ -212,25 +216,25 @@ const http = serve({
 
 					// For extensionless paths, try .html (for clean URLs)
 					if (!safe_path.includes(".") && !safe_path.endsWith("/")) {
-						const html_file = client.file(`${file_path}.html`);
+						const html_file = storage.file(`${file_path}.html`);
 						if (await html_file.exists()) {
 							return file_response(html_file.stream(), "text/html");
 						}
 
 						// Also try as directory with index.html
-						const dir_index = client.file(join(file_path, "index.html"));
+						const dir_index = storage.file(join(file_path, "index.html"));
 						if (await dir_index.exists()) {
 							return file_response(dir_index.stream(), "text/html");
 						}
 					}
 
 					// Serve 200.html if exists for client-side SPA routing
-					const fallback_file = client.file(join(domain, "200.html"));
+					const fallback_file = storage.file(join(domain, "200.html"));
 					if (await fallback_file.exists()) {
 						return file_response(fallback_file.stream(), "text/html", 200);
 					}
 
-					return new Response(Bun.file("./404.html"), {
+					return new Response(platform404, {
 						status: 404,
 						headers: {
 							"Content-Type": "text/html",
@@ -240,9 +244,9 @@ const http = serve({
 				}
 
 				// Apex: OG image
-				if (pathname === "/og.png") {
+				if (pathname === "/og.png" && platformOg) {
 					return file_response(
-						Bun.file("./og.png"),
+						platformOg,
 						"image/png",
 						200,
 						get_apex_cache_headers(),
@@ -250,7 +254,7 @@ const http = serve({
 				}
 
 				// Apex: landing page
-				return new Response(Bun.file("./index.html"), {
+				return new Response(platformIndex, {
 					status: 200,
 					headers: {
 						"Content-Type": "text/html",
@@ -259,16 +263,54 @@ const http = serve({
 				});
 			},
 		},
-	},
-	fetch() {
-		return new Response(Bun.file("./404.html"), {
-			status: 404,
-			headers: {
-				"Content-Type": "text/html",
-				...get_apex_cache_headers(),
-			},
-		});
-	},
-});
+	};
+}
 
-console.log(`Listening on http://localhost:${http.port}`);
+export function start_server(options: ServerOptions) {
+	const routes = create_routes(options);
+
+	return serve({
+		port: options.port,
+		routes,
+		fetch() {
+			return new Response(options.platform404, {
+				status: 404,
+				headers: {
+					"Content-Type": "text/html",
+					...get_apex_cache_headers(),
+				},
+			});
+		},
+	});
+}
+
+const {
+	S3_REGION,
+	S3_ENDPOINT,
+	S3_ACCESS_KEY_ID,
+	S3_ACCESS_KEY_SECRET,
+	S3_BUCKET,
+	ORIGIN,
+} = Bun.env;
+
+const is_main = import.meta.main;
+
+if (is_main) {
+	const client = new S3Client({
+		region: S3_REGION!,
+		endpoint: S3_ENDPOINT!,
+		accessKeyId: S3_ACCESS_KEY_ID!,
+		secretAccessKey: S3_ACCESS_KEY_SECRET!,
+		bucket: S3_BUCKET!,
+	});
+
+	const http = start_server({
+		storage: client,
+		origin: ORIGIN!,
+		platform404: Bun.file("./404.html"),
+		platformIndex: Bun.file("./index.html"),
+		platformOg: Bun.file("./og.png"),
+	});
+
+	console.log(`Listening on http://localhost:${http.port}`);
+}

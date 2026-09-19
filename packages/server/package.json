@@ -9,7 +9,8 @@
 		"dev": "bun run index.ts",
 		"start": "bun run ./dist/index.js",
 		"build": "bun build index.ts --target=bun --production --outdir=dist --sourcemap=linked",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsc --noEmit",
+		"test": "bun test"
 	},
 	"dependencies": {
 		"mime": "^4.0.7"

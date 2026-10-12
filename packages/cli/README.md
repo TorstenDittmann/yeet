@@ -7,7 +7,7 @@ Publish static sites instantly with a single command.
 Requires **Node.js 20+** (the published CLI runs on Node).
 
 ```bash
-npm install -g @dittmann/yeet
+npm install -g yeet.page
 ```
 
 Or from this repo (needs [Bun](https://bun.sh) to install/build):

@@ -2,7 +2,7 @@
 
 A fast static site hosting platform with subdomain-based routing.
 
-Live product: [yeet.page](https://yeet.page) · CLI: [`@dittmann/yeet`](https://www.npmjs.com/package/@dittmann/yeet)
+Live product: [yeet.page](https://yeet.page) · CLI: [`yeet.page`](https://www.npmjs.com/package/yeet.page)
 
 ## Project Structure
 
@@ -14,7 +14,7 @@ This project uses a monorepo with the following packages:
 ## Prerequisites
 
 - [Bun](https://bun.sh) — required to develop and build packages in this repo
-- Node.js 20+ — required to run the published `@dittmann/yeet` CLI
+- Node.js 20+ — required to run the published `yeet.page` CLI
 
 ## Installation
 

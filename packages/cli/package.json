@@ -1,5 +1,5 @@
 {
-	"name": "@dittmann/yeet",
+	"name": "yeet.page",
 	"version": "1.0.4",
 	"description": "Yeet CLI for managing static site deployments",
 	"main": "index.ts",

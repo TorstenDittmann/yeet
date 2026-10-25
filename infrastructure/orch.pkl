@@ -11,9 +11,6 @@ services {
       cpu = "500m"
       memory = "512Mi"
     }
-    constraints {
-      ["orch.node"] = "storage-01"
-    }
     secretEnv {
       ["ORIGIN"] = "origin"
       ["S3_REGION"] = "s3-region"

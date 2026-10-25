@@ -280,21 +280,26 @@
 
 		<script>
 			const btn = document.getElementById("copy");
+			const selectCommand = () => {
+				const range = document.createRange();
+				range.selectNodeContents(document.getElementById("cmd"));
+				getSelection().removeAllRanges();
+				getSelection().addRange(range);
+			};
 			btn.addEventListener("click", () => {
+				if (!navigator.clipboard) {
+					selectCommand();
+					return;
+				}
 				navigator.clipboard
-					?.writeText("npm i -g yeet.page")
+					.writeText("npm i -g yeet.page")
 					.then(() => {
 						btn.textContent = "copied";
 						setTimeout(() => {
 							btn.textContent = "copy";
 						}, 1400);
 					})
-					.catch(() => {
-						const range = document.createRange();
-						range.selectNodeContents(document.getElementById("cmd"));
-						getSelection().removeAllRanges();
-						getSelection().addRange(range);
-					});
+					.catch(selectCommand);
 			});
 		</script>
 

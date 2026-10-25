@@ -1,0 +1,39 @@
+name: Build orch image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/server/**
+      - .github/workflows/orch-image.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build existing server Dockerfile for the orch worker
+        env:
+          SOURCE_REF: ${{ github.sha }}
+        run: |
+          docker build --platform linux/amd64 \
+            --label "org.opencontainers.image.source=https://github.com/TorstenDittmann/yeet" \
+            --label "org.opencontainers.image.revision=$SOURCE_REF" \
+            --tag "yeet-orch:$SOURCE_REF" packages/server
+          mkdir image-artifact
+          docker image save "yeet-orch:$SOURCE_REF" -o image-artifact/yeet-linux-amd64.tar
+          docker image inspect "yeet-orch:$SOURCE_REF" \
+            --format '{{.Id}} {{.Os}}/{{.Architecture}}' > image-artifact/image.txt
+          cd image-artifact
+          sha256sum yeet-linux-amd64.tar > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yeet-linux-amd64
+          path: image-artifact/
+          retention-days: 7

@@ -1,115 +1,32 @@
-name: Build and deploy orch image
+name: Deploy
 
 on:
-  pull_request:
-    paths:
-      - packages/server/**
-      - infrastructure/orch.pkl
-      - infrastructure/deploy-ci.sh
-      - .github/workflows/orch-image.yml
   push:
     branches: [main]
-    paths:
-      - packages/server/**
-      - infrastructure/orch.pkl
-      - infrastructure/deploy-ci.sh
-      - .github/workflows/orch-image.yml
   workflow_dispatch:
-    inputs:
-      deploy:
-        description: Deploy this main-branch build (also requires ORCH_DEPLOY_ENABLED)
-        type: boolean
-        default: false
 
 permissions:
   contents: read
+  packages: write
+  id-token: write
+
+concurrency:
+  group: yeet-production
+  cancel-in-progress: false
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-go@v6
-        with:
-          go-version: "1.26.3"
-          cache: false
-      - name: Validate deployment script and workflow
-        run: |
-          bash -n infrastructure/deploy-ci.sh
-          go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 -shellcheck= .github/workflows/orch-image.yml
-
-  image:
-    needs: validate
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      packages: write
-    outputs:
-      image: ghcr.io/torstendittmann/yeet@${{ steps.build.outputs.digest }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build existing Dockerfile and publish immutable commit tag
-        id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: packages/server
-          file: packages/server/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ghcr.io/torstendittmann/yeet:${{ github.sha }}
-          labels: |
-            org.opencontainers.image.source=https://github.com/TorstenDittmann/yeet
-            org.opencontainers.image.revision=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Record deployable image
-        env:
-          IMAGE: ghcr.io/torstendittmann/yeet@${{ steps.build.outputs.digest }}
-        run: printf 'Image built for `%s`:\n\n`%s`\n' "$GITHUB_SHA" "$IMAGE" >> "$GITHUB_STEP_SUMMARY"
-
   deploy:
-    needs: image
-    # Fail closed by default while domain-scoped wildcard routing is prepared.
-    # A manual run must explicitly request deployment as well as enable the gate.
-    if: >-
-      github.ref == 'refs/heads/main' &&
-      vars.ORCH_DEPLOY_ENABLED == 'true' &&
-      (github.event_name == 'push' || inputs.deploy == true)
+    if: vars.ORCH_DEPLOY_ENABLED == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     environment: production
-    concurrency:
-      group: yeet-production
-      cancel-in-progress: false
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v4
+      - uses: TorstenDittmann/orch@v0.1.12
         with:
-          persist-credentials: false
-      - uses: jdx/mise-action@v2
-        with:
-          mise_toml: |
-            [tools]
-            pkl = "0.32.1"
-      - name: Deploy the built digest using scoped GitHub OIDC
-        env:
-          ORCH_CLUSTER: ${{ vars.ORCH_CLUSTER }}
-          ORCH_VERSION: ${{ vars.ORCH_VERSION }}
-          ORCH_APP: yeet
-          DEPLOY_IMAGE: ${{ needs.image.outputs.image }}
-        run: bash infrastructure/deploy-ci.sh
+          cluster: ${{ vars.ORCH_CLUSTER }}
+          version: ${{ vars.ORCH_VERSION }}
+          app: yeet
+          image: ghcr.io/torstendittmann/yeet
+          context: packages/server
+          platforms: linux/amd64
+          file: infrastructure/orch.pkl

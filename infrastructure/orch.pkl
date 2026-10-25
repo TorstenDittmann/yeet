@@ -4,16 +4,12 @@ name = "yeet"
 
 services {
   ["web"] {
-    // CI build b3238a7; stored by digest in the orch controller image store.
-    // The docker.io name is a logical name, not a publicly published image.
-    image = "docker.io/library/yeet-orch@sha256:3140615f936d25301c8e68010b334b29bc808d2c4d859a82a4510b46f73290b0"
+    // CI replaces this tag with the digest it just built and pushed to GHCR.
+    image = "ghcr.io/torstendittmann/yeet:latest"
     replicas = 1
     resources {
       cpu = "500m"
       memory = "512Mi"
-    }
-    constraints {
-      ["orch.node"] = "storage-01"
     }
     secretEnv {
       ["ORIGIN"] = "origin"
@@ -25,7 +21,10 @@ services {
     }
     http = new Http {
       port = 3000
-      public = true
+      domains {
+        "yeet.page"
+        "*.yeet.page"
+      }
       https = false
       healthPath = "/"
     }

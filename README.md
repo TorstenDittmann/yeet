@@ -50,9 +50,9 @@ By default the CLI publishes to `https://yeet.page`. Override with `--server` or
 (cd packages/cli && bun run build)
 ```
 
-The `Build orch image` GitHub Actions workflow builds the server Docker image
-for Linux AMD64 on relevant pushes to `main`. No local Docker is required.
-Deployment and migration notes live in [infrastructure](infrastructure/README.md).
+The `Deploy` GitHub Actions workflow uses orch's action to build an AMD64 image,
+push to GHCR, and deploy it on pushes to `main` when enabled. No local Docker is
+required.
 
 ## How it works
 

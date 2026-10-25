@@ -1,0 +1,38 @@
+amends "https://orch.torsten.work/pkl/v1alpha1/Application.pkl"
+
+name = "yeet"
+
+services {
+  ["web"] {
+    // CI build b3238a7; stored by digest in the orch controller image store.
+    // The docker.io name is a logical name, not a publicly published image.
+    image = "docker.io/library/yeet-orch@sha256:3140615f936d25301c8e68010b334b29bc808d2c4d859a82a4510b46f73290b0"
+    replicas = 1
+    resources {
+      cpu = "500m"
+      memory = "512Mi"
+    }
+    constraints {
+      ["orch.node"] = "storage-01"
+    }
+    secretEnv {
+      ["ORIGIN"] = "origin"
+      ["S3_REGION"] = "s3-region"
+      ["S3_ENDPOINT"] = "s3-endpoint"
+      ["S3_BUCKET"] = "s3-bucket"
+      ["S3_ACCESS_KEY_ID"] = "s3-access-key-id"
+      ["S3_ACCESS_KEY_SECRET"] = "s3-access-key-secret"
+    }
+    http = new Http {
+      port = 3000
+      public = true
+      https = false
+      healthPath = "/"
+    }
+  }
+}
+
+deploy {
+  autoUpdate = false
+  healthDeadline = "3m"
+}

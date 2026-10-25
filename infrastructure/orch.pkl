@@ -21,7 +21,10 @@ services {
     }
     http = new Http {
       port = 3000
-      public = true
+      domains {
+        "yeet.page"
+        "*.yeet.page"
+      }
       https = false
       healthPath = "/"
     }

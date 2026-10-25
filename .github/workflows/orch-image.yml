@@ -21,7 +21,7 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
-      - uses: TorstenDittmann/orch@v0.1.12
+      - uses: TorstenDittmann/orch@v0.1.13
         with:
           cluster: ${{ vars.ORCH_CLUSTER }}
           version: ${{ vars.ORCH_VERSION }}

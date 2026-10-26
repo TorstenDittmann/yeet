@@ -8,7 +8,7 @@ services {
     image = "ghcr.io/torstendittmann/yeet:latest"
     replicas = 1
     resources {
-      cpu = "500m"
+      cpu = "1"
       memory = "512Mi"
     }
     secretEnv {
